@@ -14,6 +14,8 @@ Your project is live at:
 
 ## Development
 
+This project requires **Node.js 18 or higher**.
+
 1. Clone this repository.
 2. Install dependencies with `pnpm install`.
 3. Run the development server with `pnpm dev`.
