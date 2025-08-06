@@ -41,7 +41,6 @@ export const metadata: Metadata = {
     description: "ผู้จำหน่าย O-Z/Gedney Conduit Body คุณภาพสูง มาตรฐาน UL และ NEMA",
     images: ["/og-image.jpg"],
   },
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({
