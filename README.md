@@ -18,3 +18,7 @@ Your project is live at:
 2. Install dependencies with `pnpm install`.
 3. Run the development server with `pnpm dev`.
 4. Commit and push changes from your local environment.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
