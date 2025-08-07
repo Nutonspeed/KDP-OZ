@@ -24,11 +24,12 @@ This project requires **Node.js 18 or higher**.
 ### Leads API
 
 The project now includes a simple lead management backend. The `/api/leads` endpoint
-returns stored leads via `GET` and accepts new leads via `POST`. Requests are
-validated with [Zod](https://zod.dev) and invalid payloads return `400` errors.
-By default data is kept in-memory using mock data, but if the `POSTGRES_URL`
-environment variable is provided the route will persist leads to that database
-using Neon.
+returns stored leads via `GET` and accepts new leads via `POST`. Individual
+records can be fetched, updated, or removed via `/api/leads/:id` using `GET`,
+`PUT`, and `DELETE` respectively. Requests are validated with
+[Zod](https://zod.dev) and invalid payloads return `400` errors. By default data
+is kept in-memory using mock data, but if the `POSTGRES_URL` environment
+variable is provided the routes will persist leads to that database using Neon.
 
 ## License
 

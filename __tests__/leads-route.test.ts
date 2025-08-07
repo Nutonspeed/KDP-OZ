@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { POST } from '../app/api/leads/route'
+import { GET, POST } from '../app/api/leads/route'
 
 describe('POST /api/leads', () => {
   test('returns 400 for invalid input', async () => {
@@ -22,5 +22,14 @@ describe('POST /api/leads', () => {
     expect(res.status).toBe(201)
     const json = await res.json()
     expect(json.customerName).toBe('Tester')
+  })
+})
+
+describe('GET /api/leads', () => {
+  test('returns list of leads', async () => {
+    const res = await GET()
+    expect(res.status).toBe(200)
+    const json = await res.json()
+    expect(Array.isArray(json)).toBe(true)
   })
 })

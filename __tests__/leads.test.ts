@@ -1,4 +1,10 @@
-import { addLead, getLeads } from '../lib/leads'
+import {
+  addLead,
+  getLeads,
+  getLead,
+  updateLead,
+  deleteLead,
+} from '../lib/leads'
 import { mockLeads } from '../lib/mockData'
 
 describe('leads library', () => {
@@ -18,5 +24,26 @@ describe('leads library', () => {
     })
     expect(newLead.id).toBeDefined()
     expect(mockLeads.length).toBe(initialLength + 1)
+  })
+
+  test('getLead retrieves a single lead', async () => {
+    const lead = await getLead(mockLeads[0].id)
+    expect(lead?.id).toBe(mockLeads[0].id)
+  })
+
+  test('updateLead modifies an existing lead', async () => {
+    const id = mockLeads[0].id
+    const updated = await updateLead(id, { status: 'updated' })
+    expect(updated?.status).toBe('updated')
+    const fetched = await getLead(id)
+    expect(fetched?.status).toBe('updated')
+  })
+
+  test('deleteLead removes a lead', async () => {
+    const id = mockLeads[mockLeads.length - 1].id
+    const success = await deleteLead(id)
+    expect(success).toBe(true)
+    const lead = await getLead(id)
+    expect(lead).toBeNull()
   })
 })
