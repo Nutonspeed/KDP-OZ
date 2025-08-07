@@ -1,7 +1,9 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { DollarSign, Package, Users, UserPlus, PackagePlus, ShoppingCart } from 'lucide-react';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { fetchUserCount, fetchRecentUsers } from '@/actions/users';
 import { fetchProductCount, fetchRecentProducts } from '@/actions/products';
@@ -82,8 +84,13 @@ export default function AdminDashboardPage() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <Button variant="link" asChild className="h-auto p-0">
+                  <Link href={{ pathname: '/admin/users' }}>View all</Link>
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{userCount !== null ? userCount : 'N/A'}</div>
@@ -92,8 +99,13 @@ export default function AdminDashboardPage() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Products</CardTitle>
-                <Package className="h-4 w-4 text-muted-foreground" />
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+                  <Package className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <Button variant="link" asChild className="h-auto p-0">
+                  <Link href={{ pathname: '/admin/products' }}>View all</Link>
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{productCount !== null ? productCount : 'N/A'}</div>
@@ -102,8 +114,13 @@ export default function AdminDashboardPage() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <Button variant="link" asChild className="h-auto p-0">
+                  <Link href={{ pathname: '/admin/orders' }}>View all</Link>
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{orderCount !== null ? orderCount : 'N/A'}</div>
@@ -112,8 +129,13 @@ export default function AdminDashboardPage() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <Button variant="link" asChild className="h-auto p-0">
+                  <Link href={{ pathname: '/admin/leads' }}>View all</Link>
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{leadCount !== null ? leadCount : 'N/A'}</div>
@@ -126,8 +148,13 @@ export default function AdminDashboardPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Recent Users</CardTitle>
-                <UserPlus className="h-4 w-4 text-muted-foreground" />
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium">Recent Users</CardTitle>
+                  <UserPlus className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <Button variant="link" asChild className="h-auto p-0">
+                  <Link href={{ pathname: '/admin/users' }}>View all</Link>
+                </Button>
               </CardHeader>
               <CardContent>
                 {recentUsers.length > 0 ? (
@@ -147,8 +174,13 @@ export default function AdminDashboardPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Recent Products</CardTitle>
-                <PackagePlus className="h-4 w-4 text-muted-foreground" />
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium">Recent Products</CardTitle>
+                  <PackagePlus className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <Button variant="link" asChild className="h-auto p-0">
+                  <Link href={{ pathname: '/admin/products' }}>View all</Link>
+                </Button>
               </CardHeader>
               <CardContent>
                 {recentProducts.length > 0 ? (
@@ -168,8 +200,13 @@ export default function AdminDashboardPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Recent Orders</CardTitle>
-                <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium">Recent Orders</CardTitle>
+                  <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <Button variant="link" asChild className="h-auto p-0">
+                  <Link href={{ pathname: '/admin/orders' }}>View all</Link>
+                </Button>
               </CardHeader>
               <CardContent>
                 {recentOrders.length > 0 ? (
