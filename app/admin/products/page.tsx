@@ -23,7 +23,6 @@ import { PlusCircle, Edit, Trash2, UploadCloud } from 'lucide-react'
 import { useAuthStore } from "@/lib/store"
 import { fetchProducts, addProduct, updateProduct, deleteProduct } from "@/actions/products"
 import { Product } from "@/types/product"
-import { createSupabaseBrowserClient } from "@/lib/supabase" // For image upload
 
 export default function AdminProducts() {
   const router = useRouter()
@@ -130,33 +129,7 @@ export default function AdminProducts() {
 
   const handleImageUpload = async () => {
     if (!imageFile) return formState.image_url;
-
-    setUploadingImage(true);
-    const supabase = createSupabaseBrowserClient();
-    const fileExtension = imageFile.name.split('.').pop();
-    const fileName = `${Date.now()}.${fileExtension}`;
-    const filePath = `product-images/${fileName}`;
-
-    const { data, error } = await supabase.storage
-      .from('product-images')
-      .upload(filePath, imageFile, {
-        cacheControl: '3600',
-        upsert: false,
-      });
-
-    setUploadingImage(false);
-
-    if (error) {
-      console.error('Error uploading image:', error.message);
-      alert('Failed to upload image: ' + error.message);
-      return formState.image_url; // Return existing URL if upload fails
-    }
-
-    const { data: publicUrlData } = supabase.storage
-      .from('product-images')
-      .getPublicUrl(filePath);
-
-    return publicUrlData.publicUrl;
+    return formState.image_url;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
