@@ -1,4 +1,8 @@
-import { createBrowserClient, createServerClient } from '@supabase/ssr';
+import {
+  createBrowserClient,
+  createServerClient,
+  type CookieOptions,
+} from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 
 // Client-side Supabase client (for public actions, RLS-enabled)
@@ -16,13 +20,26 @@ export const supabaseBrowser = createSupabaseBrowserClient;
 // Server-side Supabase client (for Server Components/Actions, RLS-enabled)
 // Should use SUPABASE_ANON_KEY (or NEXT_PUBLIC_SUPABASE_ANON_KEY if preferred for consistency)
 export function createSupabaseServerClient() {
-  const { cookies } = require('next/headers');
-  const cookieStore = cookies();
+  const { cookies } = require('next/headers') as typeof import('next/headers');
+
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      cookies: () => cookieStore,
+      cookies: {
+        get: async (name: string) => {
+          const cookieStore = await cookies();
+          return cookieStore.get(name)?.value;
+        },
+        set: async (name: string, value: string, options: CookieOptions) => {
+          const cookieStore = await cookies();
+          cookieStore.set({ name, value, ...options });
+        },
+        remove: async (name: string, options: CookieOptions) => {
+          const cookieStore = await cookies();
+          cookieStore.delete({ name, ...options });
+        },
+      },
     }
   );
 }
