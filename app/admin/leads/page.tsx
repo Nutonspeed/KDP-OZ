@@ -19,21 +19,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Eye, Download } from 'lucide-react'
 import { useAuthStore } from "@/lib/store" // Keep useAuthStore for client-side auth state
 import { fetchLeads, updateLeadStatus, addNoteToLead } from "@/actions/leads" // Import new Server Actions
-
-interface Lead {
-  id: string
-  created_at: string
-  customer_name: string
-  company?: string
-  phone: string
-  email: string
-  product_interest: string
-  size?: string
-  quantity?: string
-  status: "รอติดต่อ" | "กำลังเจรจา" | "ปิดการขาย"
-  notes?: string[]
-  address?: string
-}
+import type { Lead } from "@/lib/mock/leads"
 
 export default function AdminLeads() {
   const router = useRouter()
