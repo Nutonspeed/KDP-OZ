@@ -32,7 +32,26 @@ export async function fetchRecentOrders(limit: number) {
 export interface CartItem { id: string; quantity: number; base_price: number }
 
 export async function createOrder(userId: string, totalAmount: number, cartItems: CartItem[]) {
-  return { success: true, order: { id: 'new', user_id: userId, total_amount: totalAmount, status: 'pending', created_at: new Date().toISOString(), order_items: cartItems.map(ci => ({ product_id: ci.id, quantity: ci.quantity, price: ci.base_price })) } as Order }
+  return {
+    success: true,
+    order: {
+      id: 'new',
+      user_id: userId,
+      total_amount: totalAmount,
+      status: 'pending',
+      payment_status: 'unpaid',
+      created_at: new Date().toISOString(),
+      order_items: cartItems.map(ci => ({ product_id: ci.id, quantity: ci.quantity, price: ci.base_price })),
+    } as Order,
+  }
+}
+
+export async function updateOrder(id: string, data: Partial<Order>) {
+  return { success: true }
+}
+
+export async function deleteOrder(id: string) {
+  return { success: true }
 }
 
 export async function updateOrderStatus(id: string, status: string) {

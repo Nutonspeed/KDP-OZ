@@ -9,6 +9,7 @@ export interface MockOrder {
   user_id: string;
   total_amount: number;
   status: string;
+  payment_status: 'paid' | 'unpaid' | 'refunded';
   created_at: string;
   order_items?: MockOrderItem[];
 }
@@ -19,6 +20,7 @@ export const mockOrders: MockOrder[] = [
     user_id: '1',
     total_amount: 300,
     status: 'pending',
+    payment_status: 'unpaid',
     created_at: new Date().toISOString(),
     order_items: [
       { product_id: '1', quantity: 1, price: 100 },
