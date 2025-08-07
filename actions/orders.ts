@@ -43,6 +43,7 @@ export async function createOrder(userId: string, totalAmount: number, cartItems
       created_at: new Date().toISOString(),
       order_items: cartItems.map(ci => ({ product_id: ci.id, quantity: ci.quantity, price: ci.base_price })),
     } as Order,
+    error: null,
   }
 }
 

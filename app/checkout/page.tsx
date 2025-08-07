@@ -49,12 +49,12 @@ export default function CheckoutPage() {
     setIsOrderCreating(true);
     setOrderCreationError(null);
 
-    const { success, orderId: newOrderId, error } = await createOrder(user.id, totalAmount, cartItems);
+    const { success, order, error } = await createOrder(user.id, totalAmount, cartItems);
 
-    if (success && newOrderId) {
-      setOrderId(newOrderId);
+    if (success && order) {
+      setOrderId(order.id);
       // Now create payment intent
-      const { clientSecret: newClientSecret, error: paymentIntentError } = await createPaymentIntent(totalAmount, newOrderId);
+      const { clientSecret: newClientSecret, error: paymentIntentError } = await createPaymentIntent(totalAmount, order.id);
 
       if (newClientSecret) {
         setClientSecret(newClientSecret);
