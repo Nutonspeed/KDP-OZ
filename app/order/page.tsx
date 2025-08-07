@@ -150,7 +150,7 @@ export default function OrderPage() {
                           onClick={() => addToCart(product.id, product.name, size, product.basePrice)}
                         >
                           <Plus className="w-3 h-3 mr-1" />
-                          {size}"
+                            {size}&quot;
                         </Button>
                       ))}
                     </div>
@@ -182,7 +182,7 @@ export default function OrderPage() {
                       >
                         <div className="flex-1">
                           <h4 className="font-medium font-sarabun">{item.productName}</h4>
-                          <p className="text-sm text-gray-600">ขนาด: {item.size}"</p>
+                          <p className="text-sm text-gray-600">ขนาด: {item.size}&quot;</p>
                           <p className="text-sm font-bold text-blue-600">฿{item.price.toLocaleString()}</p>
                         </div>
                         <div className="flex items-center gap-2">

@@ -26,6 +26,12 @@ describe('leads library', () => {
     expect(leads.every((l) => l.status === status)).toBe(true)
   })
 
+  test('getLeads can search across fields', async () => {
+    const term = mockLeads[0].customerName.slice(0, 3)
+    const leads = await getLeads({ search: term })
+    expect(leads.some((l) => l.id === mockLeads[0].id)).toBe(true)
+  })
+
   test('addLead appends a new lead to mock data', async () => {
     const initialLength = mockLeads.length
     const newLead = await addLead({

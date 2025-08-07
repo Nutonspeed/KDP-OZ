@@ -55,4 +55,15 @@ describe('GET /api/leads', () => {
     const json = await res.json()
     expect(json.every((l: any) => l.status === status)).toBe(true)
   })
+
+  test('searches leads by query', async () => {
+    const term = mockLeads[0].customerName.slice(0, 3)
+    const req = new NextRequest(
+      `http://localhost/api/leads?q=${encodeURIComponent(term)}`
+    )
+    const res = await GET(req)
+    expect(res.status).toBe(200)
+    const json = await res.json()
+    expect(json.some((l: any) => l.id === mockLeads[0].id)).toBe(true)
+  })
 })

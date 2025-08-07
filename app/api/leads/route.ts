@@ -6,7 +6,8 @@ export async function GET(req: NextRequest) {
     const params = req.nextUrl.searchParams
     const email = params.get('email') ?? undefined
     const status = params.get('status') ?? undefined
-    const leads = await getLeads({ email, status })
+    const search = params.get('q') ?? undefined
+    const leads = await getLeads({ email, status, search })
     return NextResponse.json(leads)
   } catch {
     return NextResponse.json(

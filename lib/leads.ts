@@ -38,10 +38,12 @@ export const leadUpdateSchema = leadInputSchema.partial()
 export interface LeadFilter {
   email?: string
   status?: string
+  search?: string
 }
 
 export async function getLeads(filter: LeadFilter = {}): Promise<Lead[]> {
   if (hasDb && sql) {
+    const like = filter.search ? `%${filter.search}%` : null
     const result = await sql<Lead[]>`
       SELECT id,
              customer_name   as "customerName",
@@ -57,10 +59,14 @@ export async function getLeads(filter: LeadFilter = {}): Promise<Lead[]> {
              created_at       as "createdAt",
              updated_at       as "updatedAt"
       FROM leads
-      ${filter.email || filter.status ? sql`WHERE` : sql``}
+      ${filter.email || filter.status || filter.search ? sql`WHERE` : sql``}
       ${filter.email ? sql`email = ${filter.email}` : sql``}
-      ${filter.email && filter.status ? sql`AND` : sql``}
+      ${filter.email && (filter.status || filter.search) ? sql`AND` : sql``}
       ${filter.status ? sql`status = ${filter.status}` : sql``}
+      ${(filter.status && filter.search) || (filter.email && filter.search) ? sql`AND` : sql``}
+      ${filter.search
+        ? sql`(customer_name ILIKE ${like} OR company ILIKE ${like} OR email ILIKE ${like})`
+        : sql``}
       ORDER BY created_at DESC`
     return result
   }
@@ -71,6 +77,15 @@ export async function getLeads(filter: LeadFilter = {}): Promise<Lead[]> {
   }
   if (filter.status) {
     leads = leads.filter((l) => l.status === filter.status)
+  }
+  if (filter.search) {
+    const s = filter.search.toLowerCase()
+    leads = leads.filter(
+      (l) =>
+        l.customerName.toLowerCase().includes(s) ||
+        (l.company?.toLowerCase().includes(s) ?? false) ||
+        (l.email?.toLowerCase().includes(s) ?? false),
+    )
   }
   return leads
 }

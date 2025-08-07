@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import Link from "next/link"
 import { Building, Users, Award, Globe, Shield, CheckCircle, Star, Target, Heart, Lightbulb, Handshake, TrendingUp, MapPin, Phone, Mail } from 'lucide-react'
 import { AnimatedCounter, FadeInSection, SlideInSection } from "@/components/AnimatedComponents"
 
@@ -491,16 +492,21 @@ export default function AboutPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
-                <a href="/contact">
+                <Link href="/contact">
                   <Phone className="w-4 h-4 mr-2" />
                   ติดต่อเรา
-                </a>
+                </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-blue-600">
-                <a href="/products">
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="border-white text-white hover:bg-white hover:text-blue-600"
+              >
+                <Link href="/products">
                   <Globe className="w-4 h-4 mr-2" />
                   ดูสินค้า
-                </a>
+                </Link>
               </Button>
             </div>
           </FadeInSection>

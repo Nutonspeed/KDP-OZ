@@ -25,7 +25,8 @@ This project requires **Node.js 18 or higher**.
 
 The project now includes a simple lead management backend. The `/api/leads` endpoint
 returns stored leads via `GET` and accepts new leads via `POST`. The `GET` handler
-supports filtering by `email` or `status` query parameters to narrow results.
+supports filtering by `email`, `status`, or a free-text `q` search parameter to
+narrow results.
 Individual records can be fetched, partially updated, replaced, or removed via
 `/api/leads/:id` using `GET`, `PATCH`, `PUT`, and `DELETE` respectively. Requests
 are validated with [Zod](https://zod.dev) and invalid payloads return `400`

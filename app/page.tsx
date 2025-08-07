@@ -231,7 +231,7 @@ export default function HomePage() {
                       <div className="flex flex-wrap gap-1 mb-3">
                         {product.sizes.slice(0, 4).map((size) => (
                           <Badge key={size} variant="secondary" className="text-xs">
-                            {size}"
+                              {size}&quot;
                           </Badge>
                         ))}
                         {product.sizes.length > 4 && (
