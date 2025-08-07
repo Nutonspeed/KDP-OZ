@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { sql } from './db'
 import { mockLeads } from './mockData'
 
@@ -18,6 +19,19 @@ export interface Lead {
 }
 
 const hasDb = !!sql
+
+export const leadInputSchema = z.object({
+  customerName: z.string().min(1),
+  company: z.string().optional(),
+  phone: z.string().optional(),
+  email: z.string().email().optional(),
+  address: z.string().optional(),
+  productInterest: z.string().optional(),
+  size: z.string().optional(),
+  quantity: z.string().optional(),
+  status: z.string().optional(),
+  notes: z.array(z.string()).optional(),
+})
 
 export async function getLeads(): Promise<Lead[]> {
   if (hasDb && sql) {
@@ -42,9 +56,10 @@ export async function getLeads(): Promise<Lead[]> {
   return mockLeads
 }
 
-export type LeadInput = Omit<Lead, 'id' | 'createdAt' | 'updatedAt'>
+export type LeadInput = z.infer<typeof leadInputSchema>
 
 export async function addLead(lead: LeadInput): Promise<Lead> {
+  const data = leadInputSchema.parse(lead)
   if (hasDb && sql) {
     const result = await sql<Lead[]>`
       INSERT INTO leads (
@@ -59,16 +74,16 @@ export async function addLead(lead: LeadInput): Promise<Lead> {
         status,
         notes
       ) VALUES (
-        ${lead.customerName},
-        ${lead.company ?? null},
-        ${lead.phone ?? null},
-        ${lead.email ?? null},
-        ${lead.address ?? null},
-        ${lead.productInterest ?? null},
-        ${lead.size ?? null},
-        ${lead.quantity ?? null},
-        ${lead.status ?? null},
-        ${JSON.stringify(lead.notes ?? [])}
+        ${data.customerName},
+        ${data.company ?? null},
+        ${data.phone ?? null},
+        ${data.email ?? null},
+        ${data.address ?? null},
+        ${data.productInterest ?? null},
+        ${data.size ?? null},
+        ${data.quantity ?? null},
+        ${data.status ?? null},
+        ${JSON.stringify(data.notes ?? [])}
       ) RETURNING id,
                 customer_name   as "customerName",
                 company,
@@ -89,7 +104,7 @@ export async function addLead(lead: LeadInput): Promise<Lead> {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     notes: [],
-    ...lead,
+    ...data,
   }
   mockLeads.push(newLead)
   return newLead
