@@ -5,7 +5,7 @@ import { createSupabaseAdminClient } from '@/lib/supabase';
 import { updateOrderStatus } from './orders';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-04-10', // Use a recent API version
+  apiVersion: '2024-04-10' as Stripe.LatestApiVersion,
 });
 
 export async function createPaymentIntent(amount: number, orderId: string) {

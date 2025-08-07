@@ -42,7 +42,7 @@ export default function AdminLogin() {
     setError("")
 
     try {
-      const { data, error: authError } = await supabaseBrowser.auth.signInWithPassword({
+      const { data, error: authError } = await supabaseBrowser().auth.signInWithPassword({
         email: credentials.email,
         password: credentials.password,
       })
@@ -51,7 +51,7 @@ export default function AdminLogin() {
         setError(authError.message)
       } else if (data.user) {
         // If login is successful, update the Zustand store with user info
-        login({ id: data.user.id, email: data.user.email })
+        login({ id: data.user.id, email: data.user.email ?? '' })
         router.push("/admin")
       } else {
         setError("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง") // Fallback for unexpected cases

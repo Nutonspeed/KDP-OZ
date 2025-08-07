@@ -35,7 +35,7 @@ import {
 } from '@/components/ui/select';
 
 export default function AdminAnalyticsPage() {
-  const [range, setRange] = useState<DateRange>({
+  const [range, setRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), 6),
     to: new Date(),
   });
@@ -47,7 +47,7 @@ export default function AdminAnalyticsPage() {
 
   useEffect(() => {
     async function load() {
-      if (!range.from || !range.to) return;
+      if (!range?.from || !range?.to) return;
       const start = range.from.toISOString();
       const end = range.to.toISOString();
       const [salesRes, usersRes, ordersRes, topRes] = await Promise.all([

@@ -6,6 +6,8 @@ export interface Product {
   base_price: number;
   image_url?: string;
   category?: string;
+  type?: string;
+  material?: string;
   is_featured?: boolean;
   created_at: string;
   updated_at: string;

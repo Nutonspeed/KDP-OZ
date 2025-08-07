@@ -59,7 +59,7 @@ export default function AdminProducts() {
     const loadProducts = async () => {
       setLoading(true)
       if (isAuthenticated) {
-        const fetchedProducts = await fetchProducts()
+        const { products: fetchedProducts } = await fetchProducts()
         setProducts(fetchedProducts)
       }
       setLoading(false)
@@ -175,7 +175,7 @@ export default function AdminProducts() {
     }
 
     if (result.success) {
-      const fetchedProducts = await fetchProducts()
+      const { products: fetchedProducts } = await fetchProducts()
       setProducts(fetchedProducts)
       setIsAddEditDialogOpen(false)
     } else {
@@ -187,8 +187,8 @@ export default function AdminProducts() {
     if (confirm("คุณแน่ใจหรือไม่ที่จะลบสินค้านี้? การดำเนินการนี้ไม่สามารถย้อนกลับได้")) {
       const result = await deleteProduct(id)
       if (result.success) {
-        const fetchedProducts = await fetchProducts()
-        setProducts(fetchedProducts)
+      const { products: fetchedProducts } = await fetchProducts()
+      setProducts(fetchedProducts)
       } else {
         alert(`Failed to delete product: ${result.error}`)
       }

@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { fetchOrderById } from '@/actions/orders';
-import { Order } from '@/types/order'; // Assuming you have an Order type
+import { Order } from '@/actions/orders';
 
 export default function OrderSuccessPage() {
   const searchParams = useSearchParams();

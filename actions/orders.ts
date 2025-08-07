@@ -4,6 +4,41 @@ import { createSupabaseAdminClient, createSupabaseServerClient } from '@/lib/sup
 import { revalidatePath } from 'next/cache';
 import { CartItem } from '@/lib/store';
 
+export interface OrderItem {
+  id: string;
+  order_id: string;
+  product_id: string;
+  quantity: number;
+  price: number;
+  price_at_purchase: number;
+  product_name?: string;
+  product_image_url?: string;
+  product_slug?: string;
+  products?: any;
+}
+
+export interface Order {
+  id: string;
+  user_id: string;
+  total_amount: number;
+  status: string;
+  payment_status: string;
+  created_at: string;
+  updated_at?: string;
+  notes?: string;
+  shipping_address?: {
+    name?: string;
+    address_line1?: string;
+    address_line2?: string | null;
+    city?: string;
+    state?: string;
+    zip_code?: string;
+    country?: string;
+    phone?: string;
+  };
+  order_items?: OrderItem[];
+}
+
 export async function fetchOrders(page: number = 1, limit: number = 10) {
   const supabase = createSupabaseAdminClient(); // Use admin client for fetching all orders
   const offset = (page - 1) * limit;
@@ -115,7 +150,7 @@ export async function createOrder(userId: string, totalAmount: number, cartItems
       order_id: order.id,
       product_id: item.id,
       quantity: item.quantity,
-      price: item.price,
+      price: item.base_price,
     }));
 
     // Then, insert order items
@@ -195,5 +230,72 @@ export async function updateOrderStatus(orderId: string, status: string) {
   } catch (error: any) {
     console.error('Unexpected error updating order status:', error.message);
     return { success: false, error: 'An unexpected error occurred.' };
+  }
+}
+
+export async function updateOrder(orderId: string, updates: Partial<Order>) {
+  const supabase = createSupabaseAdminClient();
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', orderId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating order:', error.message);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath('/admin/orders');
+    revalidatePath('/order-history');
+    return { success: true, order: data };
+  } catch (error: any) {
+    console.error('Unexpected error updating order:', error.message);
+    return { success: false, error: 'An unexpected error occurred.' };
+  }
+}
+
+export async function deleteOrder(orderId: string) {
+  const supabase = createSupabaseAdminClient();
+  try {
+    const { error } = await supabase
+      .from('orders')
+      .delete()
+      .eq('id', orderId);
+
+    if (error) {
+      console.error('Error deleting order:', error.message);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath('/admin/orders');
+    revalidatePath('/order-history');
+    return { success: true };
+  } catch (error: any) {
+    console.error('Unexpected error deleting order:', error.message);
+    return { success: false, error: 'An unexpected error occurred.' };
+  }
+}
+
+export async function fetchUserOrders(userId: string) {
+  const supabase = createSupabaseServerClient();
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*, order_items(*, products(*))')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching user orders:', error.message);
+      return [] as Order[];
+    }
+
+    return (data as Order[]) || [];
+  } catch (error: any) {
+    console.error('Unexpected error fetching user orders:', error.message);
+    return [] as Order[];
   }
 }

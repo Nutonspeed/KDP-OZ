@@ -16,6 +16,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Label } from "@/components/ui/label"
 import { Eye, Edit, Trash2 } from 'lucide-react'
 import { useAuthStore } from "@/lib/store"
 import { fetchOrders, updateOrder, deleteOrder, Order, OrderItem } from "@/actions/orders"
@@ -46,7 +47,7 @@ export default function AdminOrders() {
     const loadOrders = async () => {
       setLoading(true)
       if (isAuthenticated) {
-        const fetchedOrders = await fetchOrders()
+        const { orders: fetchedOrders } = await fetchOrders()
         setOrders(fetchedOrders)
       }
       setLoading(false)
@@ -77,7 +78,7 @@ export default function AdminOrders() {
     if (selectedOrder && newStatus) {
       const result = await updateOrder(selectedOrder.id, { status: newStatus })
       if (result.success) {
-        const fetchedOrders = await fetchOrders()
+        const { orders: fetchedOrders } = await fetchOrders()
         setOrders(fetchedOrders)
         setIsEditDialogOpen(false)
         setSelectedOrder(null)
@@ -92,7 +93,7 @@ export default function AdminOrders() {
     if (confirm("คุณแน่ใจหรือไม่ที่จะลบคำสั่งซื้อนี้? การดำเนินการนี้ไม่สามารถย้อนกลับได้")) {
       const result = await deleteOrder(id)
       if (result.success) {
-        const fetchedOrders = await fetchOrders()
+        const { orders: fetchedOrders } = await fetchOrders()
         setOrders(fetchedOrders)
       } else {
         alert(`Failed to delete order: ${result.error}`)
@@ -107,7 +108,7 @@ export default function AdminOrders() {
       case 'processing':
         return 'secondary'
       case 'completed':
-        return 'success' // Assuming 'success' variant exists or can be added
+        return 'secondary'
       case 'cancelled':
         return 'destructive'
       default:
@@ -159,7 +160,7 @@ export default function AdminOrders() {
                       </Badge>
                     </TableCell>
                     <TableCell className="font-sarabun">
-                      <Badge variant={order.payment_status === 'paid' ? 'success' : 'default'} className="font-sarabun">
+                      <Badge variant={order.payment_status === 'paid' ? 'secondary' : 'default'} className="font-sarabun">
                         {order.payment_status === 'paid' && 'ชำระแล้ว'}
                         {order.payment_status === 'unpaid' && 'ยังไม่ชำระ'}
                         {order.payment_status === 'refunded' && 'คืนเงินแล้ว'}
@@ -201,17 +202,17 @@ export default function AdminOrders() {
                   <p><strong>ผู้ใช้ ID:</strong> {selectedOrder.user_id}</p>
                   <p><strong>ยอดรวม:</strong> ฿{selectedOrder.total_amount.toLocaleString()}</p>
                   <p><strong>สถานะ:</strong> <Badge variant={getStatusBadgeVariant(selectedOrder.status)}>{selectedOrder.status}</Badge></p>
-                  <p><strong>สถานะชำระเงิน:</strong> <Badge variant={selectedOrder.payment_status === 'paid' ? 'success' : 'default'}>{selectedOrder.payment_status}</Badge></p>
+                  <p><strong>สถานะชำระเงิน:</strong> <Badge variant={selectedOrder.payment_status === 'paid' ? 'secondary' : 'default'}>{selectedOrder.payment_status}</Badge></p>
                   {selectedOrder.notes && <p><strong>หมายเหตุ:</strong> {selectedOrder.notes}</p>}
                 </div>
                 <div>
                   <h3 className="font-bold mb-2">ที่อยู่จัดส่ง</h3>
-                  <p>{selectedOrder.shipping_address.name}</p>
-                  <p>{selectedOrder.shipping_address.address_line1}</p>
-                  {selectedOrder.shipping_address.address_line2 && <p>{selectedOrder.shipping_address.address_line2}</p>}
-                  <p>{selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.state} {selectedOrder.shipping_address.zip_code}</p>
-                  <p>{selectedOrder.shipping_address.country}</p>
-                  <p>โทร: {selectedOrder.shipping_address.phone}</p>
+                  <p>{selectedOrder.shipping_address?.name}</p>
+                  <p>{selectedOrder.shipping_address?.address_line1}</p>
+                  {selectedOrder.shipping_address?.address_line2 && <p>{selectedOrder.shipping_address.address_line2}</p>}
+                  <p>{selectedOrder.shipping_address?.city}, {selectedOrder.shipping_address?.state} {selectedOrder.shipping_address?.zip_code}</p>
+                  <p>{selectedOrder.shipping_address?.country}</p>
+                  <p>โทร: {selectedOrder.shipping_address?.phone}</p>
                 </div>
                 <div className="md:col-span-2">
                   <h3 className="font-bold mb-2">รายการสินค้า</h3>
@@ -230,8 +231,8 @@ export default function AdminOrders() {
                           <TableRow key={item.id}>
                             <TableCell>{item.product_name}</TableCell>
                             <TableCell>{item.quantity}</TableCell>
-                            <TableCell>฿{item.price_at_purchase.toLocaleString()}</TableCell>
-                            <TableCell>฿{(item.quantity * item.price_at_purchase).toLocaleString()}</TableCell>
+                            <TableCell>฿{(item.price_at_purchase ?? 0).toLocaleString()}</TableCell>
+                            <TableCell>฿{(item.quantity * (item.price_at_purchase ?? 0)).toLocaleString()}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
