@@ -49,7 +49,7 @@ export function LoginDialog({ children }: LoginDialogProps) {
     setError("")
 
     try {
-      const { data, error: authError } = await supabaseBrowser.auth.signInWithPassword({
+      const { data, error: authError } = await supabaseBrowser().auth.signInWithPassword({
         email: credentials.email,
         password: credentials.password,
       })
@@ -62,7 +62,7 @@ export function LoginDialog({ children }: LoginDialogProps) {
           variant: "destructive",
         })
       } else if (data.user) {
-        login(data.user) // Pass the user object to the store
+        login({ id: data.user.id, email: data.user.email ?? '' }) // Pass minimal user info to store
         setIsOpen(false) // Close dialog on successful login
         router.push("/admin")
         toast({

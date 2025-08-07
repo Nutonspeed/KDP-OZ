@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import { useStore } from '@/lib/store';
+import { useCartStore } from '@/lib/store';
 import { createPaymentIntent } from '@/actions/payments';
 import PaymentForm from '@/components/PaymentForm';
 import { Button } from '@/components/ui/button';
@@ -21,9 +21,9 @@ import { useUser } from '@supabase/auth-helpers-react'; // Assuming you have a u
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 export default function CheckoutPage() {
-  const cartItems = useStore((state) => state.items);
-  const clearCart = useStore((state) => state.clearCart);
-  const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const cartItems = useCartStore((state) => state.items);
+  const clearCart = useCartStore((state) => state.clearCart);
+  const totalAmount = cartItems.reduce((sum, item) => sum + item.base_price * item.quantity, 0);
   const router = useRouter();
   const { toast } = useToast();
   const user = useUser(); // Get user from Supabase auth context
@@ -192,7 +192,7 @@ export default function CheckoutPage() {
               {cartItems.map((item) => (
                 <div key={item.id} className="flex justify-between items-center">
                   <span>{item.name} (x{item.quantity})</span>
-                  <span>${(item.price * item.quantity).toFixed(2)}</span>
+                  <span>${(item.base_price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
             </div>

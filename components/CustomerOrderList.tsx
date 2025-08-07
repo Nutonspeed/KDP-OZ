@@ -38,7 +38,7 @@ export default function CustomerOrderList({ orders }: CustomerOrderListProps) {
             <Badge
               variant={
                 order.status === 'completed'
-                  ? 'success'
+                  ? 'secondary'
                   : order.status === 'cancelled'
                     ? 'destructive'
                     : 'default'
@@ -68,7 +68,7 @@ export default function CustomerOrderList({ orders }: CustomerOrderListProps) {
                       {item.product_image_url ? (
                         <Image
                           src={item.product_image_url || "/placeholder.svg"}
-                          alt={item.product_name}
+                          alt={item.product_name || ''}
                           width={48}
                           height={48}
                           className="rounded-md object-cover"
@@ -95,7 +95,7 @@ export default function CustomerOrderList({ orders }: CustomerOrderListProps) {
               <Badge
                 variant={
                   order.payment_status === 'paid'
-                    ? 'success'
+                    ? 'secondary'
                     : order.payment_status === 'refunded'
                       ? 'destructive'
                       : 'default'
@@ -107,7 +107,7 @@ export default function CustomerOrderList({ orders }: CustomerOrderListProps) {
               </Badge>
             </div>
             <div className="mt-2 text-right text-sm text-gray-600 font-sarabun">
-              ที่อยู่จัดส่ง: {order.shipping_address.name}, {order.shipping_address.address_line1}, {order.shipping_address.city}, {order.shipping_address.zip_code}
+              ที่อยู่จัดส่ง: {order.shipping_address?.name}, {order.shipping_address?.address_line1}, {order.shipping_address?.city}, {order.shipping_address?.zip_code}
             </div>
           </CardContent>
         </Card>

@@ -21,9 +21,9 @@ export const useAuthStore = create<AuthState>()(
       login: (user) => set({ isAuthenticated: true, user }),
       logout: () => set({ isAuthenticated: false, user: null }),
       checkAuth: async () => {
-        const { data, error } = await supabaseBrowser.auth.getSession()
+        const { data, error } = await supabaseBrowser().auth.getSession()
         if (data?.session) {
-          set({ isAuthenticated: true, user: { id: data.session.user.id, email: data.session.user.email } })
+          set({ isAuthenticated: true, user: { id: data.session.user.id, email: data.session.user.email ?? '' } })
         } else {
           set({ isAuthenticated: false, user: null })
         }
@@ -45,7 +45,7 @@ interface ProductState {
   getProduct: (id: string) => Product | undefined
 }
 
-export const useProductStore = create<ProductState>(
+export const useProductStore = create<ProductState>()(
   persist(
     (set, get) => ({
       products: [],
@@ -157,7 +157,7 @@ interface MarketingState {
   deleteCampaign: (id: string) => void
 }
 
-export const useMarketingStore = create<MarketingState>(
+export const useMarketingStore = create<MarketingState>()(
   persist(
     (set) => ({
       campaigns: [],
@@ -314,7 +314,7 @@ export const useContentStore = create<ContentState>()(
 )
 
 // Cart Store
-interface CartItem extends Product {
+export interface CartItem extends Product {
   quantity: number;
 }
 

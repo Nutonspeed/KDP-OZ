@@ -247,7 +247,9 @@ export async function getTopProducts(
     for (const order of orders || []) {
       for (const item of order.order_items || []) {
         const id = item.product_id;
-        const name = item.products?.name || 'Unknown';
+        const name = Array.isArray(item.products)
+          ? item.products[0]?.name || 'Unknown'
+          : (item.products as { name?: string } | undefined)?.name || 'Unknown';
         tally[id] = {
           name,
           total: (tally[id]?.total || 0) + Number(item.quantity || 0),

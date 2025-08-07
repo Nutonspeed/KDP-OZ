@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Dialog,
   DialogContent,
@@ -69,7 +70,7 @@ export default function AdminUsers() {
     const loadUsers = async () => {
       setLoading(true)
       if (isAuthenticated) {
-        const fetchedUsers = await fetchUsers()
+        const { users: fetchedUsers } = await fetchUsers()
         setUsers(fetchedUsers)
       }
       setLoading(false)
@@ -105,11 +106,11 @@ export default function AdminUsers() {
       }
       result = await updateUser(editingUser.id, updates)
     } else {
-      result = await createUser(formData.email, formData.password, { role: formData.role })
+      result = await createUser({ email: formData.email, password: formData.password, role: formData.role })
     }
 
     if (result.success) {
-      const fetchedUsers = await fetchUsers()
+      const { users: fetchedUsers } = await fetchUsers()
       setUsers(fetchedUsers)
       resetForm()
       setIsDialogOpen(false)
@@ -144,8 +145,8 @@ export default function AdminUsers() {
     if (confirm("คุณแน่ใจหรือไม่ที่จะลบผู้ใช้นี้? การดำเนินการนี้ไม่สามารถย้อนกลับได้")) {
       const result = await deleteUser(id)
       if (result.success) {
-        const fetchedUsers = await fetchUsers()
-        setUsers(fetchedUsers)
+      const { users: fetchedUsers } = await fetchUsers()
+      setUsers(fetchedUsers)
       } else {
         alert(`Failed to delete user: ${result.error}`)
       }
