@@ -64,3 +64,24 @@ export async function getTopProducts(start: string, end: string, limit: number) 
     .slice(0, limit)
   return { products, error: null }
 }
+
+export async function getWeeklySalesSummary() {
+  const end = new Date()
+  const start = new Date(end)
+  start.setDate(end.getDate() - 7)
+  return getSalesSummaryRange(start.toISOString(), end.toISOString())
+}
+
+export async function getUserGrowthTrend() {
+  const end = new Date()
+  const start = new Date(end)
+  start.setDate(end.getDate() - 7)
+  return getUserGrowthTrendRange(start.toISOString(), end.toISOString())
+}
+
+export async function getDailyOrderCounts() {
+  const end = new Date()
+  const start = new Date(end)
+  start.setDate(end.getDate() - 7)
+  return getDailyOrderCountsRange(start.toISOString(), end.toISOString())
+}
