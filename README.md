@@ -30,9 +30,10 @@ narrow results.
 Individual records can be fetched, partially updated, replaced, or removed via
 `/api/leads/:id` using `GET`, `PATCH`, `PUT`, and `DELETE` respectively. Requests
 are validated with [Zod](https://zod.dev) and invalid payloads return `400`
-errors. By default data is kept in-memory using mock data, but if the
-`POSTGRES_URL` environment variable is provided the routes will persist leads to
-that database using Neon.
+errors. Notes can be appended to a lead with `POST /api/leads/:id/notes` by
+sending a JSON body of `{ "note": "follow up" }`. By default data is kept
+in-memory using mock data, but if the `POSTGRES_URL` environment variable is
+provided the routes will persist leads to that database using Neon.
 
 ## License
 

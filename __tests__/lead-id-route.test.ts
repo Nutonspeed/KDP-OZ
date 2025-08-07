@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import { GET, PUT, PATCH, DELETE } from '../app/api/leads/[id]/route'
+import { POST as POST_NOTE } from '../app/api/leads/[id]/notes/route'
 import { addLead } from '../lib/leads'
 
 describe('GET/PUT/PATCH/DELETE /api/leads/:id', () => {
@@ -40,6 +41,18 @@ describe('GET/PUT/PATCH/DELETE /api/leads/:id', () => {
     const json = await res.json()
     expect(json.customerName).toBe('Replaced')
     expect(json.status).toBe('replaced')
+  })
+
+  test('POST /notes adds a note', async () => {
+    const req = new NextRequest('http://localhost', {
+      method: 'POST',
+      body: JSON.stringify({ note: 'check in' }),
+      headers: { 'content-type': 'application/json' },
+    })
+    const res = await POST_NOTE(req, { params: { id } })
+    expect(res.status).toBe(200)
+    const json = await res.json()
+    expect(json.notes).toContain('check in')
   })
 
   test('DELETE removes the lead', async () => {

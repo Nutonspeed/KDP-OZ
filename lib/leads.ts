@@ -215,6 +215,38 @@ export async function updateLead(
   return updated
 }
 
+export async function addLeadNote(
+  id: string,
+  note: string
+): Promise<Lead | null> {
+  if (hasDb && sql) {
+    const result = await sql<Lead[]>`
+      UPDATE leads SET
+        notes = COALESCE(notes, '[]'::jsonb) || ${JSON.stringify([note])}::jsonb,
+        updated_at = NOW()
+      WHERE id = ${id}
+      RETURNING id,
+                customer_name   as "customerName",
+                company,
+                phone,
+                email,
+                address,
+                product_interest as "productInterest",
+                size,
+                quantity,
+                status,
+                notes,
+                created_at       as "createdAt",
+                updated_at       as "updatedAt"`
+    return result[0] ?? null
+  }
+  const lead = mockLeads.find((l) => l.id === id)
+  if (!lead) return null
+  lead.notes = [...(lead.notes ?? []), note]
+  lead.updatedAt = new Date().toISOString()
+  return lead
+}
+
 export async function deleteLead(id: string): Promise<boolean> {
   if (hasDb && sql) {
     const result = await sql<{ id: string }[]>`

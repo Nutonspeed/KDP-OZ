@@ -4,6 +4,7 @@ import {
   getLead,
   updateLead,
   deleteLead,
+  addLeadNote,
 } from '../lib/leads'
 import { mockLeads } from '../lib/mockData'
 
@@ -56,6 +57,15 @@ describe('leads library', () => {
     expect(updated?.status).toBe('updated')
     const fetched = await getLead(id)
     expect(fetched?.status).toBe('updated')
+  })
+
+  test('addLeadNote appends a note', async () => {
+    const id = mockLeads[0].id
+    const note = 'follow up'
+    const updated = await addLeadNote(id, note)
+    expect(updated?.notes).toContain(note)
+    const fetched = await getLead(id)
+    expect(fetched?.notes).toContain(note)
   })
 
   test('deleteLead removes a lead', async () => {
