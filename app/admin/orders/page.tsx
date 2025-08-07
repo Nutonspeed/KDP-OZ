@@ -18,7 +18,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Eye, Edit, Trash2 } from 'lucide-react'
-import { useAuthStore } from "@/lib/store"
+import { useAuthStore } from "@/lib/stores"
 import { fetchOrders, updateOrder, deleteOrder, Order, OrderItem } from "@/actions/orders"
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'

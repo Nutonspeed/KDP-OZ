@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import { useCartStore } from '@/lib/store';
+import { useCartStore } from '@/lib/stores';
 import { createPaymentIntent } from '@/actions/payments';
 import PaymentForm from '@/components/PaymentForm';
 import { Button } from '@/components/ui/button';

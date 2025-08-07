@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Eye, Download } from 'lucide-react'
-import { useAuthStore } from "@/lib/store" // Keep useAuthStore for client-side auth state
+import { useAuthStore } from "@/lib/stores" // Keep useAuthStore for client-side auth state
 import { fetchLeads, updateLeadStatus, addNoteToLead } from "@/actions/leads" // Import new Server Actions
 
 interface Lead {

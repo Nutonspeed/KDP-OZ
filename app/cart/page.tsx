@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { useCartStore } from "@/lib/store"
+import { useCartStore } from "@/lib/stores"
 import { Trash2, ShoppingCart, ArrowRight } from 'lucide-react'
 
 export default function CartPage() {

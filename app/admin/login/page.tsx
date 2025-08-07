@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { useAuthStore } from "@/lib/store"
+import { useAuthStore } from "@/lib/stores"
 import { supabaseBrowser } from "@/lib/supabase" // Import the browser client
 
 export default function AdminLogin() {

@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Plus, Edit, Trash2, User, Mail, KeyRound } from 'lucide-react'
-import { useAuthStore } from "@/lib/store"
+import { useAuthStore } from "@/lib/stores"
 import { fetchUsers, createUser, updateUser, deleteUser } from "@/actions/users"
 
 interface SupabaseUser {

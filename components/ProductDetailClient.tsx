@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Product } from "@/types/product"
-import { useCartStore } from "@/lib/store"
+import { useCartStore } from "@/lib/stores"
 import { ShoppingCart, Minus, Plus } from 'lucide-react'
 
 interface ProductDetailClientProps {

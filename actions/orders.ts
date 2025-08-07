@@ -2,7 +2,7 @@
 
 import { createSupabaseAdminClient, createSupabaseServerClient } from '@/lib/supabase';
 import { revalidatePath } from 'next/cache';
-import { CartItem } from '@/lib/store';
+import type { CartItem } from '@/lib/stores';
 
 export interface OrderItem {
   id: string;

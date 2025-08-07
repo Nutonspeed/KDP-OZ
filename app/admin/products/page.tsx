@@ -20,7 +20,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { PlusCircle, Edit, Trash2, UploadCloud } from 'lucide-react'
-import { useAuthStore } from "@/lib/store"
+import { useAuthStore } from "@/lib/stores"
 import { fetchProducts, addProduct, updateProduct, deleteProduct } from "@/actions/products"
 import { Product } from "@/types/product"
 import { createSupabaseBrowserClient } from "@/lib/supabase" // For image upload

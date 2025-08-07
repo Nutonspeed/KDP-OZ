@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ShoppingCart, User, LogOut, LayoutDashboard, History, Users, Package, BarChart3 } from 'lucide-react'
-import { useAuthStore, useCartStore } from '@/lib/store'
+import { useAuthStore, useCartStore } from '@/lib/stores'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
