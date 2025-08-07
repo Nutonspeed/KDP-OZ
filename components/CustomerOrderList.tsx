@@ -81,8 +81,8 @@ export default function CustomerOrderList({ orders }: CustomerOrderListProps) {
                       </Link>
                     </TableCell>
                     <TableCell className="font-sarabun">{item.quantity}</TableCell>
-                    <TableCell className="font-sarabun">฿{item.price_at_purchase.toLocaleString()}</TableCell>
-                    <TableCell className="font-sarabun">฿{(item.quantity * item.price_at_purchase).toLocaleString()}</TableCell>
+                    <TableCell className="font-sarabun">฿{(item.price_at_purchase ?? 0).toLocaleString()}</TableCell>
+                    <TableCell className="font-sarabun">฿{(item.quantity * (item.price_at_purchase ?? 0)).toLocaleString()}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
