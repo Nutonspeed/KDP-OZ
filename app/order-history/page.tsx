@@ -1,19 +1,9 @@
-import { redirect } from 'next/navigation';
-import { createSupabaseServerClient } from '@/lib/supabase';
 import { fetchUserOrders, Order } from '@/actions/orders';
 import CustomerOrderList from '@/components/CustomerOrderList';
 
 export default async function OrderHistoryPage() {
-  const supabase = createSupabaseServerClient();
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (!session) {
-    redirect('/admin/login'); // Redirect to login if not authenticated
-  }
-
-  const userId = session.user.id;
+  const userId = '1';
   const orders: Order[] = await fetchUserOrders(userId);
-
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
