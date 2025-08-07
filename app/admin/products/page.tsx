@@ -23,7 +23,6 @@ import { PlusCircle, Edit, Trash2, UploadCloud } from 'lucide-react'
 import { useAuthStore } from "@/lib/store"
 import { fetchProducts, addProduct, updateProduct, deleteProduct } from "@/actions/products"
 import { Product } from "@/types/product"
-import { createSupabaseBrowserClient } from "@/lib/supabase" // For image upload
 
 export default function AdminProducts() {
   const router = useRouter()
@@ -39,6 +38,7 @@ export default function AdminProducts() {
     base_price: 0,
     image_url: '',
     category: '',
+    sizes: [] as string[],
     is_featured: false,
     stock_quantity: 0, // Added for inventory
   })
@@ -59,7 +59,7 @@ export default function AdminProducts() {
     const loadProducts = async () => {
       setLoading(true)
       if (isAuthenticated) {
-        const fetchedProducts = await fetchProducts()
+        const { products: fetchedProducts } = await fetchProducts()
         setProducts(fetchedProducts)
       }
       setLoading(false)
@@ -84,6 +84,7 @@ export default function AdminProducts() {
       base_price: 0,
       image_url: '',
       category: '',
+      sizes: [] as string[],
       is_featured: false,
       stock_quantity: 0, // Reset stock
     })
@@ -100,6 +101,7 @@ export default function AdminProducts() {
       base_price: product.base_price,
       image_url: product.image_url || '',
       category: product.category || '',
+      sizes: product.sizes,
       is_featured: product.is_featured || false,
       stock_quantity: product.stock_quantity, // Set stock
     })
@@ -127,33 +129,7 @@ export default function AdminProducts() {
 
   const handleImageUpload = async () => {
     if (!imageFile) return formState.image_url;
-
-    setUploadingImage(true);
-    const supabase = createSupabaseBrowserClient();
-    const fileExtension = imageFile.name.split('.').pop();
-    const fileName = `${Date.now()}.${fileExtension}`;
-    const filePath = `product-images/${fileName}`;
-
-    const { data, error } = await supabase.storage
-      .from('product-images')
-      .upload(filePath, imageFile, {
-        cacheControl: '3600',
-        upsert: false,
-      });
-
-    setUploadingImage(false);
-
-    if (error) {
-      console.error('Error uploading image:', error.message);
-      alert('Failed to upload image: ' + error.message);
-      return formState.image_url; // Return existing URL if upload fails
-    }
-
-    const { data: publicUrlData } = supabase.storage
-      .from('product-images')
-      .getPublicUrl(filePath);
-
-    return publicUrlData.publicUrl;
+    return formState.image_url;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -175,7 +151,7 @@ export default function AdminProducts() {
     }
 
     if (result.success) {
-      const fetchedProducts = await fetchProducts()
+      const { products: fetchedProducts } = await fetchProducts()
       setProducts(fetchedProducts)
       setIsAddEditDialogOpen(false)
     } else {
@@ -187,8 +163,8 @@ export default function AdminProducts() {
     if (confirm("คุณแน่ใจหรือไม่ที่จะลบสินค้านี้? การดำเนินการนี้ไม่สามารถย้อนกลับได้")) {
       const result = await deleteProduct(id)
       if (result.success) {
-        const fetchedProducts = await fetchProducts()
-        setProducts(fetchedProducts)
+      const { products: fetchedProducts } = await fetchProducts()
+      setProducts(fetchedProducts)
       } else {
         alert(`Failed to delete product: ${result.error}`)
       }

@@ -7,7 +7,7 @@ import { Product } from "@/types/product" // Import Product type
 export const dynamic = 'force-dynamic' // Ensure data is always fresh
 
 export default async function ProductsPage() {
-  const products: Product[] = await fetchProducts()
+  const { products }: { products: Product[] } = await fetchProducts()
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">

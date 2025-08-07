@@ -3,13 +3,14 @@ import ProductDetailClient from "@/components/ProductDetailClient"
 import { notFound } from "next/navigation"
 
 interface ProductDetailPageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
-  const product = await fetchProductBySlug(params.slug)
+  const { slug } = await params
+  const { product } = await fetchProductBySlug(slug)
 
   if (!product) {
     notFound()

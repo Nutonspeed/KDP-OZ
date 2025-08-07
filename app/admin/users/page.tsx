@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Dialog,
   DialogContent,
@@ -17,36 +18,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Plus, Edit, Trash2, User, Mail, KeyRound } from 'lucide-react'
+import { Plus, Edit, Trash2, Mail, KeyRound } from 'lucide-react'
 import { useAuthStore } from "@/lib/store"
 import { fetchUsers, createUser, updateUser, deleteUser } from "@/actions/users"
-
-interface SupabaseUser {
-  id: string;
-  email: string;
-  created_at: string;
-  last_sign_in_at: string | null;
-  email_confirmed_at: string | null;
-  role: string | null; // Supabase internal role
-  app_metadata: {
-    provider?: string;
-    providers?: string[];
-    [key: string]: any;
-  };
-  user_metadata: {
-    role?: string; // Custom role, e.g., 'admin', 'editor', 'viewer'
-    [key: string]: any;
-  };
-}
+import type { User } from "@/lib/mock/users"
 
 export default function AdminUsers() {
   const router = useRouter()
   const { isAuthenticated, checkAuth } = useAuthStore()
-  const [users, setUsers] = useState<SupabaseUser[]>([])
+  const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingUser, setEditingUser] = useState<SupabaseUser | null>(null)
+  const [editingUser, setEditingUser] = useState<User | null>(null)
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -69,7 +53,7 @@ export default function AdminUsers() {
     const loadUsers = async () => {
       setLoading(true)
       if (isAuthenticated) {
-        const fetchedUsers = await fetchUsers()
+        const { users: fetchedUsers } = await fetchUsers()
         setUsers(fetchedUsers)
       }
       setLoading(false)
@@ -105,11 +89,11 @@ export default function AdminUsers() {
       }
       result = await updateUser(editingUser.id, updates)
     } else {
-      result = await createUser(formData.email, formData.password, { role: formData.role })
+      result = await createUser({ email: formData.email, password: formData.password, role: formData.role })
     }
 
     if (result.success) {
-      const fetchedUsers = await fetchUsers()
+      const { users: fetchedUsers } = await fetchUsers()
       setUsers(fetchedUsers)
       resetForm()
       setIsDialogOpen(false)
@@ -129,7 +113,7 @@ export default function AdminUsers() {
     setFormError("")
   }
 
-  const handleEdit = (user: SupabaseUser) => {
+  const handleEdit = (user: User) => {
     setEditingUser(user)
     setFormData({
       email: user.email,
@@ -144,8 +128,8 @@ export default function AdminUsers() {
     if (confirm("คุณแน่ใจหรือไม่ที่จะลบผู้ใช้นี้? การดำเนินการนี้ไม่สามารถย้อนกลับได้")) {
       const result = await deleteUser(id)
       if (result.success) {
-        const fetchedUsers = await fetchUsers()
-        setUsers(fetchedUsers)
+      const { users: fetchedUsers } = await fetchUsers()
+      setUsers(fetchedUsers)
       } else {
         alert(`Failed to delete user: ${result.error}`)
       }

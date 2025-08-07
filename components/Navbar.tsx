@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ShoppingCart, User, LogOut, LayoutDashboard, History } from 'lucide-react'
+import { ShoppingCart, User, LogOut, LayoutDashboard, History, Users, Package, BarChart3 } from 'lucide-react'
 import { useAuthStore, useCartStore } from '@/lib/store'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -78,9 +78,34 @@ export function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link href="/admin" className="flex items-center font-sarabun">
                     <LayoutDashboard className="mr-2 h-4 w-4" />
-                    Admin Dashboard
+                    Dashboard
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/admin/analytics" className="flex items-center font-sarabun">
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    Analytics
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/admin/orders" className="flex items-center font-sarabun">
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    Orders
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/admin/products" className="flex items-center font-sarabun">
+                    <Package className="mr-2 h-4 w-4" />
+                    Products
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/admin/users" className="flex items-center font-sarabun">
+                    <Users className="mr-2 h-4 w-4" />
+                    Users
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/order-history" className="flex items-center font-sarabun">
                     <History className="mr-2 h-4 w-4" />

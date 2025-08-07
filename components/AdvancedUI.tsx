@@ -169,7 +169,7 @@ export function InteractiveProductCard({ product }: { product: any }) {
 
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-lg font-bold text-blue-600">฿{product.basePrice.toLocaleString()}</span>
+                <span className="text-lg font-bold text-blue-600">฿{product.base_price.toLocaleString()}</span>
                 <span className="text-sm text-gray-500 ml-1">เริ่มต้น</span>
               </div>
 

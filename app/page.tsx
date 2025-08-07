@@ -31,10 +31,10 @@ export default function HomePage() {
   const filteredProducts = featuredProducts.filter(
     (product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.type.toLowerCase().includes(searchTerm.toLowerCase()),
+      product.type?.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
-  const productTypes = [...new Set(products.map((p) => p.type))]
+  const productTypes = [...new Set(products.map((p) => p.type).filter(Boolean))]
   const totalProducts = products.length
 
   const handleContactSubmit = async (e: React.FormEvent) => {
@@ -203,7 +203,7 @@ export default function HomePage() {
                   <CardHeader className="p-4">
                     <div className="aspect-square bg-gray-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
                       <Image
-                        src={product.image || "/placeholder.svg"}
+                        src={product.image_url || "/placeholder.svg"}
                         alt={product.name}
                         width={200}
                         height={200}
@@ -232,7 +232,7 @@ export default function HomePage() {
                         )}
                       </div>
                       <p className="text-xl font-bold text-blue-600 mb-4">
-                        เริ่มต้น ฿{product.basePrice.toLocaleString()}
+                        เริ่มต้น ฿{product.base_price.toLocaleString()}
                       </p>
                     </div>
                     <Button asChild className="w-full" size="sm">
