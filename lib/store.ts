@@ -1,42 +1,13 @@
 'use client';
-import { create } from "zustand"
-import { persist, createJSONStorage } from "zustand/middleware"
-import { supabaseBrowser } from "./supabase" // Import the browser client
-import { User } from '@supabase/supabase-js' // Import User type
-import { Product } from "@/types/product" // Import Product type
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { Product } from "@/types/product";
 
-// Auth Store
-interface AuthState {
-  isAuthenticated: boolean
-  user: { id: string; email: string } | null // Store Supabase User object
-  checkAuth: () => Promise<void> // Make it async
-  login: (user: { id: string; email: string }) => void // Accept User object
-  logout: () => void // Make it async
-}
-
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      isAuthenticated: false,
-      user: null,
-      login: (user) => set({ isAuthenticated: true, user }),
-      logout: () => set({ isAuthenticated: false, user: null }),
-      checkAuth: async () => {
-        const { data, error } = await supabaseBrowser().auth.getSession()
-        if (data?.session) {
-          set({ isAuthenticated: true, user: { id: data.session.user.id, email: data.session.user.email ?? '' } })
-        } else {
-          set({ isAuthenticated: false, user: null })
-        }
-      },
-    }),
-    {
-      name: 'auth-storage', // name of the item in localStorage
-      storage: typeof window !== 'undefined' ? createJSONStorage(() => localStorage) : undefined,
-    }
-  )
-)
-
+export const useAuthStore = create(() => ({
+  isAuthenticated: true,
+  login: () => {},
+  checkAuth: () => true,
+}));
 // Product Store
 interface ProductState {
   products: Product[]
