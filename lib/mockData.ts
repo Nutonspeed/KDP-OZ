@@ -9,6 +9,7 @@ export const products: Product[] = [
       "Type LB conduit body สำหรับงานไฟฟ้าอุตสาหกรรม ขนาด 3/4 นิ้ว มาตรฐาน UL Listed",
     type: "LB",
     material: "Aluminum",
+    sizes: ["1/2", "3/4", "1", "1-1/4", "1-1/2", "2"],
     base_price: 450,
     category: "Standard",
     image_url:
@@ -25,6 +26,7 @@ export const products: Product[] = [
       "Type C conduit body สำหรับการเชื่อมต่อท่อร้อยสายไฟแบบตรง คุณภาพมาตรฐานสากล",
     type: "C",
     material: "Aluminum",
+    sizes: ["1/2", "3/4", "1", "1-1/4", "1-1/2", "2", "2-1/2", "3"],
     base_price: 380,
     category: "Standard",
     image_url:
@@ -41,6 +43,7 @@ export const products: Product[] = [
       "Type T conduit body สำหรับการแยกสายไฟ 3 ทิศทาง เหมาะสำหรับงานไฟฟ้าที่ซับซ้อน",
     type: "T",
     material: "Aluminum",
+    sizes: ["1/2", "3/4", "1", "1-1/4", "1-1/2", "2"],
     base_price: 520,
     category: "Standard",
     image_url:
@@ -57,6 +60,7 @@ export const products: Product[] = [
       "Type LL conduit body สำหรับการเลี้ยวซ้าย 90 องศา ประหยัดพื้นที่ในการติดตั้ง",
     type: "LL",
     material: "Aluminum",
+    sizes: ["1/2", "3/4", "1", "1-1/4", "1-1/2", "2"],
     base_price: 480,
     category: "Standard",
     image_url:
@@ -73,6 +77,7 @@ export const products: Product[] = [
       "Type LR conduit body สำหรับการเลี้ยวขวา 90 องศา ออกแบบให้ติดตั้งง่าย",
     type: "LR",
     material: "Aluminum",
+    sizes: ["1/2", "3/4", "1", "1-1/4", "1-1/2", "2"],
     base_price: 480,
     category: "Standard",
     image_url:
@@ -89,6 +94,7 @@ export const products: Product[] = [
       "Explosion-proof Type LB conduit body สำหรับพื้นที่เสี่ยงระเบิด Class I Division 1 & 2",
     type: "LB",
     material: "Cast Iron",
+    sizes: ["1/2", "3/4", "1", "1-1/4", "1-1/2", "2", "2-1/2", "3"],
     base_price: 1250,
     category: "Explosion-Proof",
     image_url:
@@ -105,6 +111,7 @@ export const products: Product[] = [
       "Explosion-proof Type C conduit body สำหรับพื้นที่เสี่ยงระเบิด มาตรฐาน ATEX และ IECEx",
     type: "C",
     material: "Cast Iron",
+    sizes: ["1/2", "3/4", "1", "1-1/4", "1-1/2", "2", "2-1/2", "3", "4"],
     base_price: 1180,
     category: "Explosion-Proof",
     image_url:
@@ -121,6 +128,7 @@ export const products: Product[] = [
       "Stainless steel Type LB conduit body สำหรับสภาพแวดล้อมที่มีการกัดกร่อน เกรดทะเล",
     type: "LB",
     material: "Stainless Steel",
+    sizes: ["1/2", "3/4", "1", "1-1/4", "1-1/2", "2"],
     base_price: 890,
     category: "Corrosion-Resistant",
     image_url:

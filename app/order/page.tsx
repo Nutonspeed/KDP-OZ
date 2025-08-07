@@ -40,7 +40,7 @@ export default function OrderPage() {
     if (productSlug) {
       const product = products.find((p) => p.slug === productSlug)
       if (product && product.sizes.length > 0) {
-        addToCart(product.id, product.name, product.sizes[0], product.basePrice)
+        addToCart(product.id, product.name, product.sizes[0], product.base_price)
       }
     }
   }, [productSlug])
@@ -138,7 +138,7 @@ export default function OrderPage() {
                           <Badge variant="outline">{product.material}</Badge>
                         </div>
                       </div>
-                      <p className="font-bold text-blue-600">฿{product.basePrice.toLocaleString()}</p>
+                      <p className="font-bold text-blue-600">฿{product.base_price.toLocaleString()}</p>
                     </div>
 
                     <div className="flex flex-wrap gap-2 mt-3">
@@ -147,7 +147,7 @@ export default function OrderPage() {
                           key={size}
                           variant="outline"
                           size="sm"
-                          onClick={() => addToCart(product.id, product.name, size, product.basePrice)}
+                          onClick={() => addToCart(product.id, product.name, size, product.base_price)}
                         >
                           <Plus className="w-3 h-3 mr-1" />
                           {size}"
