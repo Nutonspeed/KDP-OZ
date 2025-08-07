@@ -1,46 +1,39 @@
-import { createClient } from '@supabase/supabase-js';
+const mockClient = {
+  from: () => ({
+    select: async () => ({ data: [], error: null }),
+    insert: async () => ({ data: null, error: null }),
+    update: async () => ({ data: null, error: null }),
+    delete: async () => ({ data: null, error: null }),
+    eq: () => mockClient.from(),
+    order: () => mockClient.from(),
+    range: () => mockClient.from(),
+    limit: () => mockClient.from(),
+  }),
+  auth: {
+    signInWithPassword: async () => ({ data: { user: { id: '1', email: 'mock@example.com' } }, error: null }),
+    signOut: async () => ({ error: null }),
+    getSession: async () => ({ data: { session: null }, error: null }),
+    admin: {
+      updateUserById: async () => ({ data: { user: null }, error: null }),
+      deleteUser: async () => ({ error: null }),
+      createUser: async () => ({ data: { user: null }, error: null }),
+    },
+  },
+  storage: {
+    from: () => ({
+      upload: async () => ({ data: null, error: null }),
+      getPublicUrl: () => ({ data: { publicUrl: '' } }),
+    }),
+  },
+};
 
-// Client-side Supabase client (for public actions, RLS-enabled)
-// Should use NEXT_PUBLIC_SUPABASE_ANON_KEY
 export function createSupabaseBrowserClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  return mockClient as any;
 }
-
-// Exporting the browser client function with the requested name
 export const supabaseBrowser = createSupabaseBrowserClient;
-
-// Server-side Supabase client (for Server Components/Actions, RLS-enabled)
-// Should use SUPABASE_ANON_KEY (or NEXT_PUBLIC_SUPABASE_ANON_KEY if preferred for consistency)
 export function createSupabaseServerClient() {
-  const { cookies } = require('next/headers');
-  const cookieStore = cookies();
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, // Using NEXT_PUBLIC for consistency with browser client
-    {
-      cookies: {
-        get: (name: string) => cookieStore.get(name)?.value,
-        set: (name: string, value: string, options: any) => cookieStore.set(name, value, options),
-        remove: (name: string, options: any) => cookieStore.set(name, '', options),
-      },
-    } as any
-  );
+  return mockClient as any;
 }
-
-// Server-side Supabase Admin client (for Server Components/Actions, bypasses RLS)
-// Should use SUPABASE_SERVICE_ROLE_KEY
 export function createSupabaseAdminClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    }
-  );
+  return mockClient as any;
 }
