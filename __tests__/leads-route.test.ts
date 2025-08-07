@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import { GET, POST } from '../app/api/leads/route'
+import { mockLeads } from '../lib/mockData'
 
 describe('POST /api/leads', () => {
   test('returns 400 for invalid input', async () => {
@@ -27,9 +28,31 @@ describe('POST /api/leads', () => {
 
 describe('GET /api/leads', () => {
   test('returns list of leads', async () => {
-    const res = await GET()
+    const req = new NextRequest('http://localhost/api/leads')
+    const res = await GET(req)
     expect(res.status).toBe(200)
     const json = await res.json()
     expect(Array.isArray(json)).toBe(true)
+  })
+
+  test('filters leads by email', async () => {
+    const email = mockLeads[0].email!
+    const req = new NextRequest(`http://localhost/api/leads?email=${email}`)
+    const res = await GET(req)
+    expect(res.status).toBe(200)
+    const json = await res.json()
+    expect(json).toHaveLength(1)
+    expect(json[0].email).toBe(email)
+  })
+
+  test('filters leads by status', async () => {
+    const status = mockLeads[0].status!
+    const req = new NextRequest(
+      `http://localhost/api/leads?status=${encodeURIComponent(status)}`
+    )
+    const res = await GET(req)
+    expect(res.status).toBe(200)
+    const json = await res.json()
+    expect(json.every((l: any) => l.status === status)).toBe(true)
   })
 })

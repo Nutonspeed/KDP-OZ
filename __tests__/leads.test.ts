@@ -13,6 +13,19 @@ describe('leads library', () => {
     expect(leads).toEqual(mockLeads)
   })
 
+  test('getLeads can filter by email', async () => {
+    const email = mockLeads[0].email!
+    const leads = await getLeads({ email })
+    expect(leads).toHaveLength(1)
+    expect(leads[0].email).toBe(email)
+  })
+
+  test('getLeads can filter by status', async () => {
+    const status = mockLeads[0].status!
+    const leads = await getLeads({ status })
+    expect(leads.every((l) => l.status === status)).toBe(true)
+  })
+
   test('addLead appends a new lead to mock data', async () => {
     const initialLength = mockLeads.length
     const newLead = await addLead({

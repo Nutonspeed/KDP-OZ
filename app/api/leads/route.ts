@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { addLead, getLeads, leadInputSchema } from '@/lib/leads'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const leads = await getLeads()
+    const params = req.nextUrl.searchParams
+    const email = params.get('email') ?? undefined
+    const status = params.get('status') ?? undefined
+    const leads = await getLeads({ email, status })
     return NextResponse.json(leads)
   } catch {
     return NextResponse.json(

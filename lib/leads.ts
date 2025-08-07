@@ -35,7 +35,12 @@ export const leadInputSchema = z.object({
 
 export const leadUpdateSchema = leadInputSchema.partial()
 
-export async function getLeads(): Promise<Lead[]> {
+export interface LeadFilter {
+  email?: string
+  status?: string
+}
+
+export async function getLeads(filter: LeadFilter = {}): Promise<Lead[]> {
   if (hasDb && sql) {
     const result = await sql<Lead[]>`
       SELECT id,
@@ -52,10 +57,22 @@ export async function getLeads(): Promise<Lead[]> {
              created_at       as "createdAt",
              updated_at       as "updatedAt"
       FROM leads
+      ${filter.email || filter.status ? sql`WHERE` : sql``}
+      ${filter.email ? sql`email = ${filter.email}` : sql``}
+      ${filter.email && filter.status ? sql`AND` : sql``}
+      ${filter.status ? sql`status = ${filter.status}` : sql``}
       ORDER BY created_at DESC`
     return result
   }
-  return mockLeads
+
+  let leads = mockLeads
+  if (filter.email) {
+    leads = leads.filter((l) => l.email === filter.email)
+  }
+  if (filter.status) {
+    leads = leads.filter((l) => l.status === filter.status)
+  }
+  return leads
 }
 
 export type LeadInput = z.infer<typeof leadInputSchema>
