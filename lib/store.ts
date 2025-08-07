@@ -1,3 +1,4 @@
+'use client';
 import { create } from "zustand"
 import { persist, createJSONStorage } from "zustand/middleware"
 import { supabaseBrowser } from "./supabase" // Import the browser client
@@ -31,7 +32,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage', // name of the item in localStorage
-      storage: createJSONStorage(() => localStorage),
+      storage: typeof window !== 'undefined' ? createJSONStorage(() => localStorage) : undefined,
     }
   )
 )
@@ -128,7 +129,7 @@ export const useLeadStore = create<LeadState>()(
     }),
     {
       name: "leads-storage",
-      storage: createJSONStorage(() => localStorage),
+      storage: typeof window !== 'undefined' ? createJSONStorage(() => localStorage) : undefined,
     },
   ),
 )
@@ -308,7 +309,7 @@ export const useContentStore = create<ContentState>()(
     }),
     {
       name: "content-storage",
-      storage: createJSONStorage(() => localStorage),
+      storage: typeof window !== 'undefined' ? createJSONStorage(() => localStorage) : undefined,
     },
   ),
 )
@@ -388,7 +389,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: 'cart-storage', // name of the item in storage (must be unique)
-      storage: createJSONStorage(() => localStorage), // use localStorage for persistence
+      storage: typeof window !== 'undefined' ? createJSONStorage(() => localStorage) : undefined, // use localStorage for persistence
     }
   )
 );
