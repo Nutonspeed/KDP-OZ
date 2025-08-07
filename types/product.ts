@@ -8,6 +8,7 @@ export interface Product {
   category?: string;
   type?: string;
   material?: string;
+  sizes: string[];
   is_featured?: boolean;
   created_at: string;
   updated_at: string;

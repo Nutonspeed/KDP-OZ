@@ -39,6 +39,7 @@ export default function AdminProducts() {
     base_price: 0,
     image_url: '',
     category: '',
+    sizes: [] as string[],
     is_featured: false,
     stock_quantity: 0, // Added for inventory
   })
@@ -84,6 +85,7 @@ export default function AdminProducts() {
       base_price: 0,
       image_url: '',
       category: '',
+      sizes: [] as string[],
       is_featured: false,
       stock_quantity: 0, // Reset stock
     })
@@ -100,6 +102,7 @@ export default function AdminProducts() {
       base_price: product.base_price,
       image_url: product.image_url || '',
       category: product.category || '',
+      sizes: product.sizes,
       is_featured: product.is_featured || false,
       stock_quantity: product.stock_quantity, // Set stock
     })
