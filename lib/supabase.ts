@@ -1,9 +1,10 @@
+import { createBrowserClient, createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 
 // Client-side Supabase client (for public actions, RLS-enabled)
 // Should use NEXT_PUBLIC_SUPABASE_ANON_KEY
 export function createSupabaseBrowserClient() {
-  return createClient(
+  return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
@@ -17,16 +18,12 @@ export const supabaseBrowser = createSupabaseBrowserClient;
 export function createSupabaseServerClient() {
   const { cookies } = require('next/headers');
   const cookieStore = cookies();
-  return createClient(
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, // Using NEXT_PUBLIC for consistency with browser client
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      cookies: {
-        get: (name: string) => cookieStore.get(name)?.value,
-        set: (name: string, value: string, options: any) => cookieStore.set(name, value, options),
-        remove: (name: string, options: any) => cookieStore.set(name, '', options),
-      },
-    } as any
+      cookies: () => cookieStore,
+    }
   );
 }
 
