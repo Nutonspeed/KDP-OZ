@@ -21,6 +21,13 @@ This project requires **Node.js 18 or higher**.
 3. Run the development server with `pnpm dev`.
 4. Commit and push changes from your local environment.
 
+### Leads API
+
+The project now includes a simple lead management backend. The `/api/leads` endpoint
+returns stored leads via `GET` and accepts new leads via `POST`. By default data is
+kept in-memory using mock data, but if the `POSTGRES_URL` environment variable is
+provided the route will persist leads to that database using Neon.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -42,8 +42,17 @@ export default function HomePage() {
     setIsSubmitting(true)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerName: contactForm.name,
+          company: contactForm.company,
+          phone: contactForm.phone,
+          email: contactForm.email,
+          notes: contactForm.message ? [contactForm.message] : [],
+        }),
+      })
 
       toast({
         title: "ส่งข้อความสำเร็จ",
