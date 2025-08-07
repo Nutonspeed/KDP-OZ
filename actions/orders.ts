@@ -74,6 +74,27 @@ export async function fetchOrderCount() {
   }
 }
 
+export async function fetchRecentOrders(limit: number) {
+  const supabase = createSupabaseAdminClient();
+  try {
+    const { data: orders, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Error fetching recent orders:', error.message);
+      return { orders: [], error: error.message };
+    }
+
+    return { orders: orders || [], error: null };
+  } catch (error: any) {
+    console.error('Unexpected error fetching recent orders:', error.message);
+    return { orders: [], error: 'An unexpected error occurred.' };
+  }
+}
+
 export async function createOrder(userId: string, totalAmount: number, cartItems: CartItem[]) {
   const supabase = createSupabaseAdminClient(); // Use admin client for order creation and stock management
   try {

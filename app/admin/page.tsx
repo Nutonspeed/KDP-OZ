@@ -1,12 +1,33 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DollarSign, Package, Users } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { DollarSign, Package, Users, UserPlus, PackagePlus, ShoppingCart } from 'lucide-react';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { fetchUserCount } from '@/actions/users';
-import { fetchProductCount } from '@/actions/products';
-import { fetchOrderCount } from '@/actions/orders';
+import { fetchUserCount, fetchRecentUsers } from '@/actions/users';
+import { fetchProductCount, fetchRecentProducts } from '@/actions/products';
+import { fetchOrderCount, fetchRecentOrders } from '@/actions/orders';
 import { fetchLeadCount } from '@/actions/leads';
+import {
+  getWeeklySalesSummary,
+  getUserGrowthTrend,
+  getDailyOrderCounts,
+  type SalesSummaryPoint,
+  type CountPoint,
+} from '@/actions/analytics';
+import ChartCard from '@/components/dashboard/ChartCard';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
 
 export default function AdminDashboardPage() {
   const [userCount, setUserCount] = useState<number | null>(null);
@@ -15,29 +36,75 @@ export default function AdminDashboardPage() {
   const [leadCount, setLeadCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  interface RecentUser { id: string; email: string; created_at: string }
+  interface RecentProduct { id: string; name: string; created_at: string }
+  interface RecentOrder { id: string; status: string; created_at: string }
+
+  const [recentUsers, setRecentUsers] = useState<RecentUser[]>([]);
+  const [recentProducts, setRecentProducts] = useState<RecentProduct[]>([]);
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+  const [weeklySales, setWeeklySales] = useState<SalesSummaryPoint[]>([]);
+  const [userGrowth, setUserGrowth] = useState<CountPoint[]>([]);
+  const [dailyOrderCounts, setDailyOrderCounts] = useState<CountPoint[]>([]);
+
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return `${date.toLocaleDateString('th-TH')} - ${date.toLocaleTimeString('th-TH', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    })}`;
+  };
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
       setError(null);
       try {
-        const [users, products, orders, leads] = await Promise.all([
+        const [
+          users,
+          products,
+          orders,
+          leads,
+          recentUsersRes,
+          recentProductsRes,
+          recentOrdersRes,
+          salesSummaryRes,
+          userGrowthRes,
+          dailyOrdersRes,
+        ] = await Promise.all([
           fetchUserCount(),
           fetchProductCount(),
           fetchOrderCount(),
           fetchLeadCount(),
+          fetchRecentUsers(5),
+          fetchRecentProducts(5),
+          fetchRecentOrders(5),
+          getWeeklySalesSummary(),
+          getUserGrowthTrend(),
+          getDailyOrderCounts(),
         ]);
 
         if (users.error) throw new Error(users.error);
         if (products.error) throw new Error(products.error);
         if (orders.error) throw new Error(orders.error);
-        // Leads action doesn't return an error object, just 0 on error
-        // if (leads.error) throw new Error(leads.error);
+        if (recentUsersRes.error) throw new Error(recentUsersRes.error);
+        if (recentProductsRes.error) throw new Error(recentProductsRes.error);
+        if (recentOrdersRes.error) throw new Error(recentOrdersRes.error);
+        if (salesSummaryRes.error) throw new Error(salesSummaryRes.error);
+        if (userGrowthRes.error) throw new Error(userGrowthRes.error);
+        if (dailyOrdersRes.error) throw new Error(dailyOrdersRes.error);
 
         setUserCount(users.count);
         setProductCount(products.count);
         setOrderCount(orders.count);
         setLeadCount(leads); // fetchLeadCount returns number directly
+        setRecentUsers(recentUsersRes.users);
+        setRecentProducts(recentProductsRes.products);
+        setRecentOrders(recentOrdersRes.orders);
+        setWeeklySales(salesSummaryRes.summary);
+        setUserGrowth(userGrowthRes.trend);
+        setDailyOrderCounts(dailyOrdersRes.counts);
 
       } catch (err: any) {
         console.error('Failed to fetch dashboard data:', err);
@@ -57,56 +124,190 @@ export default function AdminDashboardPage() {
       {error && <p className="text-center text-red-500">Error: {error}</p>}
 
       {!loading && !error && (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <Button variant="link" asChild className="h-auto p-0">
+                  <Link href={{ pathname: '/admin/users' }}>View all</Link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{userCount !== null ? userCount : 'N/A'}</div>
+                <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+                  <Package className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <Button variant="link" asChild className="h-auto p-0">
+                  <Link href={{ pathname: '/admin/products' }}>View all</Link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{productCount !== null ? productCount : 'N/A'}</div>
+                <p className="text-xs text-muted-foreground">+180.1% from last month</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <Button variant="link" asChild className="h-auto p-0">
+                  <Link href={{ pathname: '/admin/orders' }}>View all</Link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{orderCount !== null ? orderCount : 'N/A'}</div>
+                <p className="text-xs text-muted-foreground">+19% from last month</p>
+              </CardContent>
+            </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{userCount !== null ? userCount : 'N/A'}</div>
-              <p className="text-xs text-muted-foreground">
-                +20.1% from last month
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Products</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{productCount !== null ? productCount : 'N/A'}</div>
-              <p className="text-xs text-muted-foreground">
-                +180.1% from last month
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{orderCount !== null ? orderCount : 'N/A'}</div>
-              <p className="text-xs text-muted-foreground">
-                +19% from last month
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <Button variant="link" asChild className="h-auto p-0">
+                <Link href={{ pathname: '/admin/leads' }}>View all</Link>
+              </Button>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{leadCount !== null ? leadCount : 'N/A'}</div>
-              <p className="text-xs text-muted-foreground">
-                +5% from last month
-              </p>
+              <p className="text-xs text-muted-foreground">+5% from last month</p>
             </CardContent>
           </Card>
         </div>
+
+          <h2 className="text-2xl font-bold mt-12 mb-4">Summary</h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <ChartCard title="Weekly Sales" hasData={weeklySales.length > 0} fallback="No sales data">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={weeklySales}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="total" stroke="#8884d8" />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard title="New Users (7 days)" hasData={userGrowth.length > 0} fallback="No user data">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={userGrowth}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="count" stroke="#82ca9d" />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard title="Daily Orders" hasData={dailyOrderCounts.length > 0} fallback="No order data">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={dailyOrderCounts}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="#ffc658" />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </div>
+
+          <h2 className="text-2xl font-bold mt-12 mb-4">Recent Activity</h2>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium">Recent Users</CardTitle>
+                  <UserPlus className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <Button variant="link" asChild className="h-auto p-0">
+                  <Link href={{ pathname: '/admin/users' }}>View all</Link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {recentUsers.length > 0 ? (
+                  <ul className="space-y-2">
+                    {recentUsers.map((user) => (
+                      <li key={user.id} className="text-sm flex justify-between">
+                        <span>{user.email}</span>
+                        <span>{formatDateTime(user.created_at)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">ยังไม่มีผู้ใช้งาน</p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium">Recent Products</CardTitle>
+                  <PackagePlus className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <Button variant="link" asChild className="h-auto p-0">
+                  <Link href={{ pathname: '/admin/products' }}>View all</Link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {recentProducts.length > 0 ? (
+                  <ul className="space-y-2">
+                    {recentProducts.map((product) => (
+                      <li key={product.id} className="text-sm flex justify-between">
+                        <span>{product.name}</span>
+                        <span>{formatDateTime(product.created_at)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">ยังไม่มีสินค้า</p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium">Recent Orders</CardTitle>
+                  <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <Button variant="link" asChild className="h-auto p-0">
+                  <Link href={{ pathname: '/admin/orders' }}>View all</Link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {recentOrders.length > 0 ? (
+                  <ul className="space-y-2">
+                    {recentOrders.map((order) => (
+                      <li key={order.id} className="text-sm flex justify-between">
+                        <span>#{order.id} - {order.status}</span>
+                        <span>{formatDateTime(order.created_at)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">ยังไม่มีออเดอร์</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </>
       )}
     </div>
   );

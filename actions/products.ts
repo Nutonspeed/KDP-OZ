@@ -74,6 +74,27 @@ export async function fetchProductCount() {
   }
 }
 
+export async function fetchRecentProducts(limit: number) {
+  const supabase = createSupabaseServerClient();
+  try {
+    const { data: products, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Error fetching recent products:', error.message);
+      return { products: [], error: error.message };
+    }
+
+    return { products: products || [], error: null };
+  } catch (error: any) {
+    console.error('Unexpected error fetching recent products:', error.message);
+    return { products: [], error: 'An unexpected error occurred.' };
+  }
+}
+
 // Renamed from createProduct to addProduct
 export async function addProduct(productData: Omit<Product, 'id' | 'created_at' | 'updated_at'>) {
   const supabase = createSupabaseAdminClient(); // Use admin client for mutations

@@ -53,6 +53,27 @@ export async function fetchUserCount() {
   }
 }
 
+export async function fetchRecentUsers(limit: number) {
+  const supabase = createSupabaseAdminClient();
+  try {
+    const { data: users, error } = await supabase
+      .from('users')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Error fetching recent users:', error.message);
+      return { users: [], error: error.message };
+    }
+
+    return { users: users || [], error: null };
+  } catch (error: any) {
+    console.error('Unexpected error fetching recent users:', error.message);
+    return { users: [], error: 'An unexpected error occurred.' };
+  }
+}
+
 export async function updateUserRole(userId: string, newRole: string) {
   const supabase = createSupabaseAdminClient();
   try {
