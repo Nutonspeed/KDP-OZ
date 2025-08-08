@@ -17,6 +17,11 @@ export interface TopProduct {
   totalSold: number
 }
 
+export interface SegmentCount {
+  type: string
+  count: number
+}
+
 function isWithinRange(date: string, start: string, end: string) {
   const d = new Date(date).getTime()
   return d >= new Date(start).getTime() && d <= new Date(end).getTime()
@@ -60,6 +65,18 @@ export async function getTopProducts(start: string, end: string, limit: number) 
     .sort((a, b) => b.totalSold - a.totalSold)
     .slice(0, limit)
   return { products, error: null }
+}
+
+export async function getCustomerSegmentsRange(start: string, end: string) {
+  const counts: Record<string, number> = {}
+  mockUsers
+    .filter(u => isWithinRange(u.created_at, start, end))
+    .forEach(u => {
+      const segment = u.user_metadata?.segment || 'unknown'
+      counts[segment] = (counts[segment] || 0) + 1
+    })
+  const segments = Object.entries(counts).map(([type, count]) => ({ type, count }))
+  return { segments, error: null }
 }
 
 export async function getWeeklySalesSummary() {

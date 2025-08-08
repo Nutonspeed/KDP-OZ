@@ -6,14 +6,19 @@ import type { DateRange } from 'react-day-picker';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import ChartPanel from '@/components/analytics/ChartPanel';
 import TopProductsTable from '@/components/analytics/TopProductsTable';
+import RealtimeSalesChart from '@/components/analytics/RealtimeSalesChart';
+import CustomerSegmentationCard from '@/components/analytics/CustomerSegmentationCard';
+import { useRealtimeOrders } from '@/hooks/useRealtimeOrders';
 import {
   getSalesSummaryRange,
   getUserGrowthTrendRange,
   getDailyOrderCountsRange,
   getTopProducts,
+  getCustomerSegmentsRange,
   type SalesSummaryPoint,
   type CountPoint,
   type TopProduct,
+  type SegmentCount,
 } from '@/actions/analytics';
 import {
   LineChart,
@@ -44,23 +49,27 @@ export default function AdminAnalyticsPage() {
   const [userData, setUserData] = useState<CountPoint[]>([]);
   const [orderData, setOrderData] = useState<CountPoint[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
+  const [segments, setSegments] = useState<SegmentCount[]>([]);
+  const realtimeOrders = useRealtimeOrders();
 
   useEffect(() => {
     async function load() {
       if (!range?.from || !range?.to) return;
       const start = range.from.toISOString();
       const end = range.to.toISOString();
-      const [salesRes, usersRes, ordersRes, topRes] = await Promise.all([
+      const [salesRes, usersRes, ordersRes, topRes, segRes] = await Promise.all([
         getSalesSummaryRange(start, end),
         getUserGrowthTrendRange(start, end),
         getDailyOrderCountsRange(start, end),
         getTopProducts(start, end, 5),
+        getCustomerSegmentsRange(start, end),
       ]);
 
       if (!salesRes.error) setSalesData(salesRes.summary);
       if (!usersRes.error) setUserData(usersRes.trend);
       if (!ordersRes.error) setOrderData(ordersRes.counts);
       if (!topRes.error) setTopProducts(topRes.products);
+      if (!segRes.error) setSegments(segRes.segments);
     }
     load();
   }, [range]);
@@ -84,6 +93,12 @@ export default function AdminAnalyticsPage() {
       </div>
 
       <div className="grid gap-6">
+        {(metric === 'all' || metric === 'sales') && (
+          <ChartPanel title="Real-time Sales" hasData={realtimeOrders.length > 0}>
+            <RealtimeSalesChart orders={realtimeOrders} />
+          </ChartPanel>
+        )}
+
         {(metric === 'all' || metric === 'sales') && (
           <ChartPanel title="Sales" hasData={salesData.length > 0}>
             <ResponsiveContainer>
@@ -109,6 +124,12 @@ export default function AdminAnalyticsPage() {
                 <Line type="monotone" dataKey="count" stroke="#82ca9d" />
               </LineChart>
             </ResponsiveContainer>
+          </ChartPanel>
+        )}
+
+        {(metric === 'all' || metric === 'users') && (
+          <ChartPanel title="Customer Segments" hasData={segments.length > 0}>
+            <CustomerSegmentationCard data={segments} />
           </ChartPanel>
         )}
 

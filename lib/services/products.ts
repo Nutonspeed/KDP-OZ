@@ -19,6 +19,10 @@ export function getRecentProducts(limit: number) {
   return mockProducts.slice(0, limit)
 }
 
+export function getLowStockProducts(threshold: number = 5) {
+  return mockProducts.filter((p) => p.stock_quantity < threshold)
+}
+
 type ProductInput = Omit<Product, 'id' | 'created_at' | 'updated_at'>
 
 export function addProduct(productData: ProductInput): Product {

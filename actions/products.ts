@@ -21,6 +21,11 @@ export async function fetchRecentProducts(limit: number) {
   return { products, error: null }
 }
 
+export async function fetchLowStockProducts(threshold: number = 5) {
+  const products = productService.getLowStockProducts(threshold)
+  return { products, error: null }
+}
+
 type ActionResult<T = {}> = { success: boolean; error?: string } & T
 
 export async function addProduct(

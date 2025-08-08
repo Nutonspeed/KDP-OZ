@@ -18,7 +18,7 @@ export const mockUsers: User[] = [
     email_confirmed_at: null,
     role: 'authenticated',
     app_metadata: {},
-    user_metadata: { role: 'admin' },
+    user_metadata: { role: 'admin', segment: 'returning' },
   },
   {
     id: '2',
@@ -28,6 +28,6 @@ export const mockUsers: User[] = [
     email_confirmed_at: null,
     role: 'authenticated',
     app_metadata: {},
-    user_metadata: { role: 'viewer' },
+    user_metadata: { role: 'viewer', segment: 'new' },
   },
 ]
