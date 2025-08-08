@@ -15,6 +15,7 @@ import { products } from "@/lib/mockData"
 import { AnimatedCounter, FadeInSection, SlideInSection } from "@/components/AnimatedComponents"
 import { useToast } from "@/hooks/use-toast"
 import { useSearchParams, useRouter } from "next/navigation"
+import { trackFacebookPixel } from "@/lib/facebookPixel"
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -31,6 +32,10 @@ export default function HomePage() {
   const [utm, setUtm] = useState<Record<string, string>>({})
   const searchParams = useSearchParams()
   const router = useRouter()
+
+  useEffect(() => {
+    trackFacebookPixel("PageView")
+  }, [])
 
   useEffect(() => {
     const params: Record<string, string> = {}

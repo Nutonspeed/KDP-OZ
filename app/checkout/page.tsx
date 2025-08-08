@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { createOrder } from '@/actions/orders';
 import { useToast } from '@/components/ui/use-toast';
 import { applyCoupon } from '@/actions/coupons';
+import { trackFacebookPixel } from '@/lib/facebookPixel';
 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the Stripe object on every render.
@@ -49,6 +50,10 @@ export default function CheckoutPage() {
       router.push('/cart'); // Redirect to cart if no items
     }
   }, [cartItems, router]);
+
+  useEffect(() => {
+    trackFacebookPixel('InitiateCheckout', { value: totalAmount, currency: 'THB' });
+  }, []);
 
   const handleCreateOrder = async () => {
     setIsOrderCreating(true);
