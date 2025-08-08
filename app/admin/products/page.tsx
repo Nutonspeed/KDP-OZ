@@ -41,6 +41,11 @@ export default function AdminProducts() {
     sizes: [] as string[],
     is_featured: false,
     stock_quantity: 0, // Added for inventory
+    // Extended fields for product management
+    tags: '',
+    discount_price: 0,
+    sale_start_date: '',
+    sale_end_date: '',
   })
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
@@ -87,6 +92,10 @@ export default function AdminProducts() {
       sizes: [] as string[],
       is_featured: false,
       stock_quantity: 0, // Reset stock
+      tags: '',
+      discount_price: 0,
+      sale_start_date: '',
+      sale_end_date: '',
     })
     setImageFile(null)
     setIsAddEditDialogOpen(true)
@@ -104,6 +113,11 @@ export default function AdminProducts() {
       sizes: product.sizes,
       is_featured: product.is_featured || false,
       stock_quantity: product.stock_quantity, // Set stock
+      // Convert array tags to comma-separated string for form
+      tags: Array.isArray((product as any).tags) ? (product as any).tags.join(', ') : '',
+      discount_price: (product as any).discount_price ?? 0,
+      sale_start_date: (product as any).sale_start_date ?? '',
+      sale_end_date: (product as any).sale_end_date ?? '',
     })
     setImageFile(null)
     setIsAddEditDialogOpen(true)
@@ -141,7 +155,17 @@ export default function AdminProducts() {
       if (!imageUrl) return; // Stop if image upload failed
     }
 
-    const productData = { ...formState, image_url: imageUrl };
+    // Convert comma-separated tags string to an array and trim whitespace
+    const tagArray = formState.tags
+      .split(',')
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0);
+    const productData = {
+      ...formState,
+      image_url: imageUrl,
+      // store tags as an array on the product model
+      tags: tagArray,
+    } as any;
 
     let result;
     if (currentProduct) {
@@ -171,6 +195,35 @@ export default function AdminProducts() {
     }
   }
 
+  // Export the list of products to a CSV file.  This exports only key
+  // fields needed for analysis: id, name, slug, base_price, stock_quantity,
+  // and created_at.  Additional fields can be added if necessary.
+  const handleExportCSV = () => {
+    if (!products || products.length === 0) {
+      alert('ไม่มีสินค้าสำหรับส่งออก')
+      return
+    }
+    const headers = ['id', 'name', 'slug', 'base_price', 'stock_quantity', 'created_at']
+    const lines = products.map((p) => [
+      p.id,
+      p.name,
+      p.slug,
+      p.base_price,
+      p.stock_quantity,
+      p.created_at,
+    ])
+    const csv = [headers.join(','), ...lines.map((row) => row.join(','))].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.setAttribute('href', url)
+    link.setAttribute('download', 'products.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
@@ -179,10 +232,15 @@ export default function AdminProducts() {
             <h1 className="text-3xl font-bold text-slate-900 mb-2 font-sarabun">จัดการสินค้า</h1>
             <p className="text-gray-600 font-sarabun">เพิ่ม แก้ไข และลบสินค้าในร้านค้าของคุณ</p>
           </div>
-          <Button onClick={handleAddProductClick}>
-            <PlusCircle className="w-4 h-4 mr-2" />
-            เพิ่มสินค้าใหม่
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleExportCSV} className="font-sarabun">
+              ส่งออก CSV
+            </Button>
+            <Button onClick={handleAddProductClick}>
+              <PlusCircle className="w-4 h-4 mr-2" />
+              เพิ่มสินค้าใหม่
+            </Button>
+          </div>
         </div>
 
         <Card>
@@ -284,6 +342,53 @@ export default function AdminProducts() {
               <div className="space-y-2 flex items-center gap-2">
                 <Label htmlFor="is_featured" className="font-sarabun">สินค้าแนะนำ</Label>
                 <Switch id="is_featured" checked={formState.is_featured} onCheckedChange={(checked) => setFormState((prev) => ({ ...prev, is_featured: checked }))} />
+              </div>
+
+              {/* Tags field: comma-separated list */}
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="tags" className="font-sarabun">แท็ก (คั่นด้วย comma)</Label>
+                <Input
+                  id="tags"
+                  type="text"
+                  placeholder="เช่น sale, popular, new"
+                  value={formState.tags}
+                  onChange={handleFormChange}
+                />
+              </div>
+
+              {/* Discount price */}
+              <div className="space-y-2">
+                <Label htmlFor="discount_price" className="font-sarabun">ราคาส่วนลด (ถ้ามี)</Label>
+                <Input
+                  id="discount_price"
+                  type="number"
+                  step="0.01"
+                  value={formState.discount_price}
+                  onChange={handleFormChange}
+                  min="0"
+                />
+              </div>
+
+              {/* Sale start date */}
+              <div className="space-y-2">
+                <Label htmlFor="sale_start_date" className="font-sarabun">วันที่เริ่มโปรโมชั่น</Label>
+                <Input
+                  id="sale_start_date"
+                  type="date"
+                  value={formState.sale_start_date}
+                  onChange={handleFormChange}
+                />
+              </div>
+
+              {/* Sale end date */}
+              <div className="space-y-2">
+                <Label htmlFor="sale_end_date" className="font-sarabun">วันที่สิ้นสุดโปรโมชั่น</Label>
+                <Input
+                  id="sale_end_date"
+                  type="date"
+                  value={formState.sale_end_date}
+                  onChange={handleFormChange}
+                />
               </div>
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="image_url" className="font-sarabun">รูปภาพสินค้า</Label>
