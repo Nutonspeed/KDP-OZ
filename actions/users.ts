@@ -1,6 +1,6 @@
 'use server'
 
-import { mockUsers, User } from '@/lib/mock/users'
+import { mockUsers, User } from '@/lib/mockDb'
 
 export async function fetchUsers(page: number = 1, limit: number = 10): Promise<{ users: User[]; totalCount: number; error: null }> {
   const offset = (page - 1) * limit
@@ -19,17 +19,47 @@ export async function fetchRecentUsers(limit: number): Promise<{ users: User[]; 
 type ActionResult<T = {}> = { success: boolean; error?: string } & T
 
 export async function updateUserRole(): Promise<ActionResult<{ user: User | null }>> {
+  // This function is a placeholder. Use updateUser to modify user metadata.
   return { success: true, user: null }
 }
 
 export async function deleteUser(id: string): Promise<ActionResult> {
-  return { success: true }
+  const idx = mockUsers.findIndex(u => u.id === id)
+  if (idx >= 0) {
+    mockUsers.splice(idx, 1)
+    return { success: true }
+  }
+  return { success: false, error: 'User not found' }
 }
 
 export async function createUser(data: { email: string; password: string; role: string }): Promise<ActionResult<{ user: User }>> {
-  return { success: true, user: mockUsers[0] }
+  const newId = (mockUsers.length + 1).toString()
+  const now = new Date().toISOString()
+  const newUser: User = {
+    id: newId,
+    email: data.email,
+    created_at: now,
+    last_sign_in_at: null,
+    email_confirmed_at: null,
+    role: 'authenticated',
+    app_metadata: {},
+    user_metadata: { role: data.role },
+  }
+  mockUsers.push(newUser)
+  return { success: true, user: newUser }
 }
 
 export async function updateUser(id: string, updates: { email?: string; password?: string; user_metadata?: { role: string } }): Promise<ActionResult<{ user: User }>> {
-  return { success: true, user: mockUsers[0] }
+  const idx = mockUsers.findIndex(u => u.id === id)
+  if (idx === -1) {
+    return { success: false, error: 'User not found' }
+  }
+  const existing = mockUsers[idx]
+  const updated: User = {
+    ...existing,
+    ...('email' in updates ? { email: updates.email! } : {}),
+    user_metadata: updates.user_metadata ? { ...existing.user_metadata, ...updates.user_metadata } : existing.user_metadata,
+  }
+  mockUsers[idx] = updated
+  return { success: true, user: updated }
 }
