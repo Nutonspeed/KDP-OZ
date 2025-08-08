@@ -13,18 +13,21 @@ export async function signIn({
   password: string
 }) {
   if (email === AUTH_EMAIL && password === AUTH_PASSWORD) {
-    cookies().set('session', 'authenticated', { httpOnly: true })
+    const cookieStore = await cookies()
+    cookieStore.set('session', 'authenticated', { httpOnly: true })
     return { id: '1', email }
   }
   return null
 }
 
 export async function signOut() {
-  cookies().delete('session')
+  const cookieStore = await cookies()
+  cookieStore.delete('session')
 }
 
 export async function getSession() {
-  const session = cookies().get('session')
+  const cookieStore = await cookies()
+  const session = cookieStore.get('session')
   if (session?.value === 'authenticated') {
     return { user: { id: '1', email: AUTH_EMAIL } }
   }
