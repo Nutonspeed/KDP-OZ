@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,7 @@ import { Search, Phone, Mail, MapPin, CheckCircle, Shield, Award, Users, Clock, 
 import { products } from "@/lib/mockData"
 import { AnimatedCounter, FadeInSection, SlideInSection } from "@/components/AnimatedComponents"
 import { useToast } from "@/hooks/use-toast"
+import { useSearchParams, useRouter } from "next/navigation"
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -27,6 +28,17 @@ export default function HomePage() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
+  const [utm, setUtm] = useState<Record<string, string>>({})
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  useEffect(() => {
+    const params: Record<string, string> = {}
+    searchParams.forEach((value, key) => {
+      if (key.startsWith("utm_")) params[key] = value
+    })
+    setUtm(params)
+  }, [searchParams])
 
   const filteredProducts = featuredProducts.filter(
     (product) =>
@@ -42,14 +54,14 @@ export default function HomePage() {
     setIsSubmitting(true)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      toast({
-        title: "ส่งข้อความสำเร็จ",
-        description: "ขอบคุณสำหรับการติดต่อ เราจะติดต่อกลับโดยเร็วที่สุด",
+      const res = await fetch("/api/rfq", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...contactForm, utm, productInterest: [] }),
       })
-
+      if (!res.ok) throw new Error("Network error")
+      window.dataLayer?.push({ event: "contact_submit" })
+      router.push("/thank-you")
       setContactForm({
         name: "",
         company: "",
@@ -98,8 +110,21 @@ export default function HomePage() {
                     size="lg"
                     className="border-white text-white hover:bg-white hover:text-blue-900 text-lg px-8 py-3 bg-transparent"
                   >
-                    <Link href="/order">ขอใบเสนอราคา</Link>
+                    <Link
+                      href="/order"
+                      onClick={() => window.dataLayer?.push({ event: "lead_request" })}
+                    >
+                      ขอใบเสนอราคา
+                    </Link>
                   </Button>
+                </div>
+                <div className="flex gap-4 mt-6">
+                  <Badge className="bg-white/20 text-white flex items-center gap-2">
+                    <Shield className="w-4 h-4" /> UL Listed
+                  </Badge>
+                  <Badge className="bg-white/20 text-white flex items-center gap-2">
+                    <Award className="w-4 h-4" /> NEMA Standard
+                  </Badge>
                 </div>
               </div>
             </SlideInSection>
@@ -128,6 +153,18 @@ export default function HomePage() {
                 </div>
               </div>
             </SlideInSection>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Section */}
+      <section className="py-8 bg-white">
+        <div className="container mx-auto px-4 text-center">
+          <h3 className="text-xl font-bold mb-4 font-sarabun">ลูกค้าที่ไว้วางใจ</h3>
+          <div className="flex justify-center gap-8 opacity-75">
+            <Image src="/placeholder-logo.png" alt="client" width={80} height={40} />
+            <Image src="/placeholder-logo.png" alt="client" width={80} height={40} />
+            <Image src="/placeholder-logo.png" alt="client" width={80} height={40} />
           </div>
         </div>
       </section>
@@ -332,7 +369,7 @@ export default function HomePage() {
       </section>
 
       {/* Contact Section */}
-      <section className="py-16 bg-blue-900 text-white">
+      <section id="contact" className="py-16 bg-blue-900 text-white">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <FadeInSection>
@@ -341,11 +378,18 @@ export default function HomePage() {
                 <p className="text-xl mb-8 text-blue-100 font-sarabun">
                   KDP Engineering & Supply จำกัด - ผู้จำหน่าย O-Z/Gedney อย่างเป็นทางการ
                 </p>
+                <p className="text-sm text-blue-200 mb-4">เวลาตอบกลับปกติ: 30 นาที</p>
                 <div className="space-y-4">
                   <div className="flex items-center gap-4">
                     <Phone className="w-6 h-6 text-blue-300" />
                     <div>
-                      <span className="text-lg font-sarabun">0-2925-9633-4</span>
+                      <a
+                        href="tel:029259633"
+                        onClick={() => window.dataLayer?.push({ event: "click_call" })}
+                        className="text-lg font-sarabun"
+                      >
+                        0-2925-9633-4
+                      </a>
                       <p className="text-sm text-blue-200">โทรศัพท์</p>
                     </div>
                   </div>
@@ -354,6 +398,21 @@ export default function HomePage() {
                     <div>
                       <span className="text-lg font-sarabun">info@kdp.co.th</span>
                       <p className="text-sm text-blue-200">อีเมล</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <Phone className="w-6 h-6 text-blue-300" />
+                    <div>
+                      <a
+                        href="https://line.me/R/ti/p/%40kdp-line"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => window.dataLayer?.push({ event: "click_line" })}
+                        className="text-lg font-sarabun"
+                      >
+                        LINE Official
+                      </a>
+                      <p className="text-sm text-blue-200">แชท LINE</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
@@ -438,6 +497,9 @@ export default function HomePage() {
                         className="bg-white/20 border-white/30 text-white placeholder:text-white/70"
                       />
                     </div>
+                    {Object.entries(utm).map(([key, value]) => (
+                      <input key={key} type="hidden" name={key} value={value} />
+                    ))}
                     <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
                       {isSubmitting ? "กำลังส่ง..." : "ส่งข้อความ"}
                     </Button>
