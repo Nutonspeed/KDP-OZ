@@ -1,6 +1,12 @@
 'use server'
 
-import { mockOrders, MockOrder, MockOrderItem } from '@/lib/mock/orders'
+import {
+  mockOrders,
+  mockPayments,
+  mockShippings,
+  MockOrder,
+  MockOrderItem,
+} from '@/lib/mockDb'
 
 export interface OrderItem
   extends Omit<MockOrderItem, 'price_at_purchase'> {
@@ -39,13 +45,17 @@ export async function createOrder(
   totalAmount: number,
   cartItems: CartItem[]
 ) {
+  // Generate a new unique order ID based on the current length. In a real
+  // database this would be handled by the database itself.
+  const newId = (mockOrders.length + 1).toString()
+  const createdAt = new Date().toISOString()
   const order: Order = {
-    id: 'new',
+    id: newId,
     user_id: userId,
     total_amount: totalAmount,
     status: 'pending',
     payment_status: 'unpaid',
-    created_at: new Date().toISOString(),
+    created_at: createdAt,
     order_items: cartItems.map((ci, idx) => ({
       id: `${idx + 1}`,
       product_id: ci.id,
@@ -54,10 +64,21 @@ export async function createOrder(
       price_at_purchase: ci.base_price,
     })),
   }
-
+  // Persist the new order in the mock database
+  mockOrders.push(order as MockOrder)
+  // Create an associated payment record with status unpaid
+  const paymentId = `pay_${mockPayments.length + 1}`
+  mockPayments.push({
+    id: paymentId,
+    order_id: newId,
+    amount: totalAmount,
+    status: 'unpaid',
+    created_at: createdAt,
+    updated_at: createdAt,
+  })
   return {
     success: true,
-    orderId: order.id,
+    orderId: newId,
     order,
     error: null,
   }
@@ -66,17 +87,70 @@ export async function createOrder(
 type ActionResult = { success: boolean; error?: string }
 
 export async function updateOrder(id: string, data: Partial<Order>): Promise<ActionResult> {
+  const idx = mockOrders.findIndex(o => o.id === id)
+  if (idx === -1) {
+    return { success: false, error: 'Order not found' }
+  }
+  const existing = mockOrders[idx]
+  // Merge provided fields onto the existing order.
+  mockOrders[idx] = { ...existing, ...data } as MockOrder
   return { success: true }
 }
 
 export async function deleteOrder(id: string): Promise<ActionResult> {
-  return { success: true }
+  const orderIdx = mockOrders.findIndex(o => o.id === id)
+  if (orderIdx >= 0) {
+    mockOrders.splice(orderIdx, 1)
+    // Remove related payment records
+    const paymentIdx = mockPayments.findIndex(p => p.order_id === id)
+    if (paymentIdx >= 0) mockPayments.splice(paymentIdx, 1)
+    // Remove related shipping records
+    const shipIdx = mockShippings.findIndex(s => s.order_id === id)
+    if (shipIdx >= 0) mockShippings.splice(shipIdx, 1)
+    return { success: true }
+  }
+  return { success: false, error: 'Order not found' }
 }
 
 export async function updateOrderStatus(id: string, status: string): Promise<ActionResult> {
+  const order = mockOrders.find(o => o.id === id)
+  if (!order) {
+    return { success: false, error: 'Order not found' }
+  }
+  order.status = status
+  // Update shipping status if shipping entry exists
+  const shipping = mockShippings.find(s => s.order_id === id)
+  if (shipping) {
+    shipping.status = status as any
+    shipping.updated_at = new Date().toISOString()
+  } else {
+    // Create a shipping record if none exists
+    mockShippings.push({
+      id: id,
+      order_id: id,
+      status: status as any,
+      updated_at: new Date().toISOString(),
+    })
+  }
   return { success: true }
 }
 
 export async function fetchUserOrders(userId: string) {
-  return mockOrders.filter((o) => o.user_id === userId) as Order[]
+  return mockOrders.filter(o => o.user_id === userId) as Order[]
+}
+
+// Update the shipping status for a given order. This helper can be used
+// by admin UIs to change the shipping state independently of the order
+// status.
+export async function updateShippingStatus(orderId: string, status: string): Promise<ActionResult> {
+  const shipping = mockShippings.find(s => s.order_id === orderId)
+  const now = new Date().toISOString()
+  if (shipping) {
+    shipping.status = status as any
+    shipping.updated_at = now
+    return { success: true }
+  }
+  // If no shipping record exists, create one
+  mockShippings.push({ id: orderId, order_id: orderId, status: status as any, updated_at: now })
+  return { success: true }
 }
