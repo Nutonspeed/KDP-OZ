@@ -1,59 +1,47 @@
-
-// Use the standalone mock products so tests reference the same data instance
-import { mockProducts } from '@/lib/mock/products'
+import * as productService from '@/lib/services/products'
 import { Product } from '@/types/product'
 
 export async function fetchProducts(page: number = 1, limit: number = 10) {
-  const offset = (page - 1) * limit
-  const products = mockProducts.slice(offset, offset + limit)
-  return { products, totalCount: mockProducts.length, error: null }
+  const { products, totalCount } = productService.listProducts(page, limit)
+  return { products, totalCount, error: null }
 }
 
 export async function fetchProductBySlug(slug: string) {
-  const product = mockProducts.find(p => p.slug === slug) || null
+  const product = productService.getProductBySlug(slug)
   return { product, error: null }
 }
 
 export async function fetchProductCount() {
-  return { count: mockProducts.length, error: null }
+  const count = productService.getProductCount()
+  return { count, error: null }
 }
 
 export async function fetchRecentProducts(limit: number) {
-  return { products: mockProducts.slice(0, limit), error: null }
+  const products = productService.getRecentProducts(limit)
+  return { products, error: null }
 }
 
 type ActionResult<T = {}> = { success: boolean; error?: string } & T
 
-export async function addProduct(productData: Omit<Product, 'id' | 'created_at' | 'updated_at'>): Promise<ActionResult<{ product: Product }>> {
-  const newId = (mockProducts.length + 1).toString()
-  const now = new Date().toISOString()
-  const newProduct: Product = {
-    id: newId,
-    created_at: now,
-    updated_at: now,
-    ...productData,
-  }
-  mockProducts.push(newProduct)
-  return { success: true, product: newProduct }
+export async function addProduct(
+  productData: Omit<Product, 'id' | 'created_at' | 'updated_at'>
+): Promise<ActionResult<{ product: Product }>> {
+  const product = productService.addProduct(productData)
+  return { success: true, product }
 }
 
-export async function updateProduct(id: string, productData: Partial<Omit<Product, 'id' | 'created_at'>>): Promise<ActionResult<{ product: Product | null }>> {
-  const idx = mockProducts.findIndex(p => p.id === id)
-  if (idx === -1) {
+export async function updateProduct(
+  id: string,
+  productData: Partial<Omit<Product, 'id' | 'created_at'>>
+): Promise<ActionResult<{ product: Product | null }>> {
+  const product = productService.updateProduct(id, productData)
+  if (!product) {
     return { success: false, error: 'Product not found', product: null }
   }
-  const existing = mockProducts[idx]
-  // Update updated_at timestamp and merge new fields
-  const updated = { ...existing, ...productData, updated_at: new Date().toISOString() }
-  mockProducts[idx] = updated
-  return { success: true, product: updated }
+  return { success: true, product }
 }
 
 export async function deleteProduct(id: string): Promise<ActionResult> {
-  const idx = mockProducts.findIndex(p => p.id === id)
-  if (idx >= 0) {
-    mockProducts.splice(idx, 1)
-    return { success: true }
-  }
-  return { success: false, error: 'Product not found' }
+  const success = productService.deleteProduct(id)
+  return success ? { success: true } : { success: false, error: 'Product not found' }
 }
