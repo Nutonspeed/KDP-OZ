@@ -28,7 +28,7 @@ export async function generateInvoice(orderId: string, amount: number): Promise<
     }
   }
 
-  const stripe = new Stripe(stripeKey, { apiVersion: '2022-11-15' })
+  const stripe = new Stripe(stripeKey)
   // For demonstration purposes a hard coded customer is used. Real
   // implementations should associate a Stripe customer with the order's user.
   const customer = await stripe.customers.create({
@@ -46,7 +46,7 @@ export async function generateInvoice(orderId: string, amount: number): Promise<
     collection_method: 'send_invoice',
   })
   return {
-    id: invoice.id,
+    id: invoice.id || '',
     order_id: orderId,
     amount,
     status: (invoice.status as Invoice['status']) || 'draft',

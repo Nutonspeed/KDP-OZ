@@ -1,13 +1,17 @@
 import { NextResponse } from 'next/server'
 import { createInvoiceForOrder, fetchOrderById } from '@/actions/orders'
 
-export async function POST(_req: Request, { params }: { params: { id: string } }) {
-  const result = await createInvoiceForOrder(params.id)
+type Context = { params: Promise<{ id: string }> }
+
+export async function POST(_req: Request, context: Context) {
+  const { id } = await context.params
+  const result = await createInvoiceForOrder(id)
   return NextResponse.json(result, { status: result.success ? 200 : 400 })
 }
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  const { order } = await fetchOrderById(params.id)
+export async function GET(_req: Request, context: Context) {
+  const { id } = await context.params
+  const { order } = await fetchOrderById(id)
   if (!order) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return NextResponse.json({ invoice_url: order.invoice_url })
 }
