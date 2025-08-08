@@ -28,57 +28,62 @@ async function createProductsTable() {
   `
 }
 
-export async function listProducts(page: number = 1, limit: number = 10) {
+export async function listProducts(
+  page: number = 1,
+  limit: number = 10,
+): Promise<{ products: Product[]; totalCount: number }> {
   await createProductsTable()
   const offset = (page - 1) * limit
-  const products = await sql<Product[]>`
+  const products = (await sql`
     SELECT * FROM products
     ORDER BY created_at DESC
     LIMIT ${limit} OFFSET ${offset}
-  `
-  const countRes = await sql<{ count: number }[]>`SELECT COUNT(*)::int as count FROM products`
+  `) as Product[]
+  const countRes = (await sql`SELECT COUNT(*)::int as count FROM products`) as { count: number }[]
   return { products, totalCount: countRes[0]?.count || 0 }
 }
 
-export async function getProductById(id: string) {
+export async function getProductById(id: string): Promise<Product | null> {
   await createProductsTable()
-  const products = await sql<Product[]>`SELECT * FROM products WHERE id = ${id} LIMIT 1`
+  const products = (await sql`SELECT * FROM products WHERE id = ${id} LIMIT 1`) as Product[]
   return products[0] || null
 }
 
-export async function getProductBySlug(slug: string) {
+export async function getProductBySlug(slug: string): Promise<Product | null> {
   await createProductsTable()
-  const products = await sql<Product[]>`SELECT * FROM products WHERE slug = ${slug} LIMIT 1`
+  const products = (await sql`SELECT * FROM products WHERE slug = ${slug} LIMIT 1`) as Product[]
   return products[0] || null
 }
 
-export async function getProductCount() {
+export async function getProductCount(): Promise<number> {
   await createProductsTable()
-  const countRes = await sql<{ count: number }[]>`SELECT COUNT(*)::int as count FROM products`
+  const countRes = (await sql`SELECT COUNT(*)::int as count FROM products`) as { count: number }[]
   return countRes[0]?.count || 0
 }
 
-export async function getRecentProducts(limit: number) {
+export async function getRecentProducts(limit: number): Promise<Product[]> {
   await createProductsTable()
-  const products = await sql<Product[]>`
+  const products = (await sql`
     SELECT * FROM products ORDER BY created_at DESC LIMIT ${limit}
-  `
+  `) as Product[]
   return products
 }
 
-export async function getLowStockProducts(threshold: number = 5) {
+export async function getLowStockProducts(
+  threshold: number = 5,
+): Promise<Product[]> {
   await createProductsTable()
-  const products = await sql<Product[]>`
+  const products = (await sql`
     SELECT * FROM products WHERE stock_quantity < ${threshold}
-  `
+  `) as Product[]
   return products
 }
 
-export async function addProduct(data: ProductInput) {
+export async function addProduct(data: ProductInput): Promise<Product> {
   await createProductsTable()
   const sizesJson = JSON.stringify(data.sizes || [])
   const tagsJson = JSON.stringify(data.tags || [])
-  const result = await sql<Product[]>`
+  const result = (await sql`
     INSERT INTO products (
       name, slug, description, base_price, image_url, category, type,
       material, sizes, is_featured, stock_quantity, tags, discount_price,
@@ -89,18 +94,18 @@ export async function addProduct(data: ProductInput) {
       ${data.is_featured ?? false}, ${data.stock_quantity}, ${tagsJson}::jsonb,
       ${data.discount_price}, ${data.sale_start_date}, ${data.sale_end_date}
     ) RETURNING *
-  `
+  `) as Product[]
   return result[0]
 }
 
 export async function updateProduct(
   id: string,
   data: Partial<Omit<Product, 'id' | 'created_at' | 'updated_at'>>
-) {
+): Promise<Product | null> {
   await createProductsTable()
   const sizesJson = data.sizes ? JSON.stringify(data.sizes) : undefined
   const tagsJson = data.tags ? JSON.stringify(data.tags) : undefined
-  const result = await sql<Product[]>`
+  const result = (await sql`
     UPDATE products SET
       name = COALESCE(${data.name}, name),
       slug = COALESCE(${data.slug}, slug),
@@ -120,11 +125,11 @@ export async function updateProduct(
       updated_at = NOW()
     WHERE id = ${id}
     RETURNING *
-  `
+  `) as Product[]
   return result[0] || null
 }
 
-export async function deleteProduct(id: string) {
+export async function deleteProduct(id: string): Promise<boolean> {
   await createProductsTable()
   const result = await sql`DELETE FROM products WHERE id = ${id}`
   // result has command tag; we can check rowCount but with neon `sql` not? We'll attempt

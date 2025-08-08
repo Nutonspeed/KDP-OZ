@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { fetchProductById, updateProduct, deleteProduct } from '@/actions/products'
 
@@ -20,8 +20,8 @@ const updateSchema = z.object({
   sale_end_date: z.string().optional(),
 })
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params
+export async function GET(_req: Request, { params }: any) {
+  const { id } = params as { id: string }
   const { product } = await fetchProductById(id)
   if (!product) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
@@ -29,8 +29,8 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   return NextResponse.json({ product })
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params
+export async function PUT(req: Request, { params }: any) {
+  const { id } = params as { id: string }
   try {
     const json = await req.json()
     const parsed = updateSchema.parse(json)
@@ -45,8 +45,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params
+export async function DELETE(_req: Request, { params }: any) {
+  const { id } = params as { id: string }
   const result = await deleteProduct(id)
   return NextResponse.json(result, { status: result.success ? 200 : 404 })
 }

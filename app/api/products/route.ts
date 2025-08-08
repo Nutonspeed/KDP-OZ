@@ -11,7 +11,7 @@ const productSchema = z.object({
   category: z.string().optional(),
   type: z.string().optional(),
   material: z.string().optional(),
-  sizes: z.array(z.string()).optional(),
+  sizes: z.array(z.string()).default([]),
   is_featured: z.boolean().optional(),
   stock_quantity: z.number(),
   tags: z.array(z.string()).optional(),

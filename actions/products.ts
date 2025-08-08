@@ -1,6 +1,6 @@
 import { Product } from '@/types/product'
 
-type ProductService = typeof import('@/lib/services/products')
+type ProductService = typeof import('@/lib/db/products')
 
 async function getService(): Promise<ProductService> {
   if (process.env.POSTGRES_URL) {

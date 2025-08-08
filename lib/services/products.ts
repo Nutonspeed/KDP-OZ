@@ -1,31 +1,35 @@
 import { mockProducts } from '@/lib/mockDb'
 import { Product } from '@/types/product'
 
-export function listProducts(page: number = 1, limit: number = 10) {
+export async function listProducts(page: number = 1, limit: number = 10) {
   const offset = (page - 1) * limit
   const products = mockProducts.slice(offset, offset + limit)
   return { products, totalCount: mockProducts.length }
 }
 
-export function getProductBySlug(slug: string) {
+export async function getProductBySlug(slug: string) {
   return mockProducts.find((p) => p.slug === slug) || null
 }
 
-export function getProductCount() {
+export async function getProductById(id: string) {
+  return mockProducts.find((p) => p.id === id) || null
+}
+
+export async function getProductCount() {
   return mockProducts.length
 }
 
-export function getRecentProducts(limit: number) {
+export async function getRecentProducts(limit: number) {
   return mockProducts.slice(0, limit)
 }
 
-export function getLowStockProducts(threshold: number = 5) {
+export async function getLowStockProducts(threshold: number = 5) {
   return mockProducts.filter((p) => p.stock_quantity < threshold)
 }
 
 type ProductInput = Omit<Product, 'id' | 'created_at' | 'updated_at'>
 
-export function addProduct(productData: ProductInput): Product {
+export async function addProduct(productData: ProductInput): Promise<Product> {
   const newId = (mockProducts.length + 1).toString()
   const now = new Date().toISOString()
   const newProduct: Product = { id: newId, created_at: now, updated_at: now, ...productData }
@@ -33,10 +37,10 @@ export function addProduct(productData: ProductInput): Product {
   return newProduct
 }
 
-export function updateProduct(
+export async function updateProduct(
   id: string,
   productData: Partial<Omit<Product, 'id' | 'created_at'>>
-): Product | null {
+): Promise<Product | null> {
   const idx = mockProducts.findIndex((p) => p.id === id)
   if (idx === -1) return null
   const existing = mockProducts[idx]
@@ -45,7 +49,7 @@ export function updateProduct(
   return updated
 }
 
-export function deleteProduct(id: string): boolean {
+export async function deleteProduct(id: string): Promise<boolean> {
   const idx = mockProducts.findIndex((p) => p.id === id)
   if (idx === -1) return false
   mockProducts.splice(idx, 1)
