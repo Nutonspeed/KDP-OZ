@@ -136,6 +136,35 @@ export default function AdminUsers() {
     }
   }
 
+  // Export the list of users to a CSV file.  Include core fields such as
+  // id, email, role, created_at, email_confirmed_at, and last_sign_in_at.  Fields
+  // that may contain nested objects (user_metadata) are omitted for clarity.
+  const handleExportCSV = () => {
+    if (!users || users.length === 0) {
+      alert('ไม่มีผู้ใช้สำหรับส่งออก')
+      return
+    }
+    const headers = ['id', 'email', 'role', 'created_at', 'email_confirmed_at', 'last_sign_in_at']
+    const lines = users.map((u) => [
+      u.id,
+      u.email,
+      u.user_metadata?.role || '',
+      u.created_at,
+      u.email_confirmed_at || '',
+      u.last_sign_in_at || '',
+    ])
+    const csv = [headers.join(','), ...lines.map((row) => row.join(','))].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.setAttribute('href', url)
+    link.setAttribute('download', 'users.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
   const getRoleBadgeVariant = (role: string | undefined) => {
     switch (role) {
       case "admin":
@@ -158,14 +187,18 @@ export default function AdminUsers() {
             <p className="text-gray-600 font-sarabun">เพิ่ม แก้ไข หรือลบผู้ใช้ในระบบ</p>
           </div>
 
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={resetForm}>
-                <Plus className="w-4 h-4 mr-2" />
-                เพิ่มผู้ใช้ใหม่
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleExportCSV} className="font-sarabun">
+              ส่งออก CSV
+            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={resetForm}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  เพิ่มผู้ใช้ใหม่
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
               <DialogHeader>
                 <DialogTitle className="font-sarabun">{editingUser ? "แก้ไขผู้ใช้" : "เพิ่มผู้ใช้ใหม่"}</DialogTitle>
                 <DialogDescription className="font-sarabun">กรอกข้อมูลผู้ใช้ให้ครบถ้วน</DialogDescription>
@@ -194,7 +227,7 @@ export default function AdminUsers() {
                     type="password"
                     value={formData.password}
                     onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
-                    required={!editingUser} // Password is required only for new users
+                    required={!editingUser}
                   />
                 </div>
 
@@ -243,6 +276,8 @@ export default function AdminUsers() {
               </form>
             </DialogContent>
           </Dialog>
+        </div>
+        {/* Close parent container for header and actions */}
         </div>
 
         <Card>
