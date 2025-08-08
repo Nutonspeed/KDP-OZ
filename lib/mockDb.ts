@@ -6,6 +6,7 @@
 // a real backend, this file can be swapped for calls to a database.
 
 import { Product } from '@/types/product'
+import type { Coupon } from '@/types/coupon'
 
 // Types reproduced from the original mock modules for consistency.
 export interface MockOrderItem {
@@ -217,3 +218,33 @@ export const mockShippings: Shipping[] = []
 
 // A simple analytics container. Real analytics should be computed on the fly.
 export const mockAnalytics: Record<string, any> = {}
+
+/**
+ * A collection of discount coupons that can be applied during checkout. Each coupon
+ * includes metadata such as usage limits and validity dates. When integrating a real
+ * backend, replace this with a persistent store.
+ */
+export const mockCoupons: Coupon[] = [
+  {
+    id: '1',
+    code: 'SAVE10',
+    description: 'Save 10% on your order',
+    discount_percentage: 0.1,
+    valid_from: new Date().toISOString(),
+    valid_to: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    max_uses: 100,
+    use_count: 0,
+    min_order_value: 0,
+  },
+  {
+    id: '2',
+    code: 'FREESHIP',
+    description: 'Free shipping on orders over $200',
+    discount_amount: 50,
+    valid_from: new Date().toISOString(),
+    valid_to: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+    max_uses: 50,
+    use_count: 0,
+    min_order_value: 200,
+  },
+]
