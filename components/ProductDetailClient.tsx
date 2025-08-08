@@ -60,6 +60,15 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   const decrementQuantity = () => {
     setQuantity((prev) => Math.max(1, prev - 1));
   }
+  // Determine if the product is currently on sale based on discount price and optional sale dates
+  const now = new Date();
+  const hasDiscount = typeof product.discount_price === 'number' && (product.discount_price ?? 0) > 0;
+  const saleStart = product.sale_start_date ? new Date(product.sale_start_date) : null;
+  const saleEnd = product.sale_end_date ? new Date(product.sale_end_date) : null;
+  const onSale =
+    hasDiscount &&
+    (!saleStart || saleStart <= now) &&
+    (!saleEnd || saleEnd >= now);
 
   return (
     <Card className="w-full max-w-4xl mx-auto md:flex">
@@ -80,13 +89,39 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
         )}
       </div>
       <CardContent className="md:w-1/2 p-6 space-y-6">
+        {/* Product name */}
         <h1 className="text-3xl font-bold text-slate-900 font-sarabun">{product.name}</h1>
+        {/* Product description */}
         <p className="text-gray-600 font-sarabun">{product.description}</p>
+        {/* Price display with discount logic */}
         <div className="flex items-baseline gap-2">
-          <span className="text-4xl font-bold text-blue-600 font-sarabun">฿{product.base_price.toLocaleString()}</span>
+          {onSale ? (
+            <>
+              <span className="text-4xl font-bold text-red-600 font-sarabun">฿{(product.discount_price ?? 0).toLocaleString()}</span>
+              <span className="text-2xl line-through text-gray-400 ml-2 font-sarabun">฿{product.base_price.toLocaleString()}</span>
+            </>
+          ) : (
+            <span className="text-4xl font-bold text-blue-600 font-sarabun">฿{product.base_price.toLocaleString()}</span>
+          )}
           <span className="text-lg text-gray-500 font-sarabun">/ ชิ้น</span>
         </div>
-
+        {/* Sale period message */}
+        {onSale && saleStart && saleEnd && (
+          <p className="text-sm text-gray-500 font-sarabun">
+            โปรโมชั่น {new Date(product.sale_start_date!).toLocaleDateString('th-TH')} ถึง {new Date(product.sale_end_date!).toLocaleDateString('th-TH')}
+          </p>
+        )}
+        {/* Tags display */}
+        {product.tags && product.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {product.tags.map((tag) => (
+              <span key={tag} className="bg-slate-200 text-slate-800 text-xs px-2 py-1 rounded-md font-sarabun">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+        {/* Stock status */}
         <div className="space-y-2">
           <p className="text-sm font-sarabun">
             สถานะสต็อก:{" "}
@@ -100,7 +135,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             </p>
           )}
         </div>
-
+        {/* Quantity selector and Add to cart */}
         <div className="flex items-center gap-2">
           <Button variant="outline" size="icon" onClick={decrementQuantity} disabled={quantity <= 1}>
             <Minus className="h-4 w-4" />
