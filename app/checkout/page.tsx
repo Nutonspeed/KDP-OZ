@@ -49,7 +49,13 @@ export default function CheckoutPage() {
     setIsOrderCreating(true);
     setOrderCreationError(null);
 
-    const { success, orderId: newOrderId, error } = await createOrder(user.id, totalAmount, cartItems);
+    // Pass the shipping address to createOrder so it can be stored with the order
+    const { success, orderId: newOrderId, error } = await createOrder(
+      user.id,
+      totalAmount,
+      cartItems,
+      shippingAddress
+    );
 
     if (success && newOrderId) {
       setOrderId(newOrderId);
