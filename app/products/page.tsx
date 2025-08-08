@@ -115,6 +115,7 @@ export default function ProductsPage() {
                           <span className="text-slate-900">฿{product.base_price.toLocaleString()}</span>
                         )}
                       </div>
+                      <div className="mt-1 text-sm text-gray-500 font-sarabun">{product.stock_quantity > 0 ? `คงเหลือ ${product.stock_quantity} ชิ้น` : "สินค้าหมด"}</div>
                     </div>
                   </div>
                 </Link>
