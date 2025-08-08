@@ -1,5 +1,5 @@
 import { fetchProducts, addProduct } from '@/actions/products'
-import { mockProducts } from '@/lib/mock/products'
+import { mockProducts } from '@/lib/mockDb'
 
 describe('products actions', () => {
   test('fetchProducts returns mock data', async () => {
