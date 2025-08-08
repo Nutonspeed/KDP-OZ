@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Phone, Mail, MapPin, Clock, Send, MessageCircle, Building, Users, Globe, CheckCircle } from 'lucide-react'
 import { FadeInSection, SlideInSection } from "@/components/AnimatedComponents"
+import { addLead } from "@/actions/leads"
 import { useToast } from "@/hooks/use-toast"
 import { fbPixelTrack } from "@/components/FacebookPixel"
 
@@ -32,28 +33,28 @@ export default function ContactPage() {
     setIsSubmitting(true)
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // Track lead conversion
-      fbPixelTrack.lead("Contact Form")
-      
-      toast({
-        title: "ส่งข้อความสำเร็จ!",
-        description: "ขอบคุณสำหรับการติดต่อ เราจะติดต่อกลับภายใน 24 ชั่วโมง",
-      })
-
-      // Reset form
-      setFormData({
-        name: "",
-        company: "",
-        phone: "",
-        email: "",
-        subject: "",
-        message: "",
-        productInterest: "",
-        urgency: ""
-      })
+      const fd = new FormData()
+      Object.entries(formData).forEach(([k, v]) => fd.append(k, v))
+      const res = await addLead(fd)
+      if (res.success) {
+        fbPixelTrack.lead("Contact Form")
+        toast({
+          title: "ส่งข้อความสำเร็จ!",
+          description: "ขอบคุณสำหรับการติดต่อ เราจะติดต่อกลับภายใน 24 ชั่วโมง",
+        })
+        setFormData({
+          name: "",
+          company: "",
+          phone: "",
+          email: "",
+          subject: "",
+          message: "",
+          productInterest: "",
+          urgency: ""
+        })
+      } else {
+        toast({ title: "เกิดข้อผิดพลาด", description: res.error || "ไม่สามารถบันทึกข้อมูลได้", variant: "destructive" })
+      }
     } catch (error) {
       toast({
         title: "เกิดข้อผิดพลาด",

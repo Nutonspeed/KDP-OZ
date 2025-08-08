@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import { mockDb } from "@/lib/mockDb"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -10,6 +11,7 @@ import { Building, Users, Award, Globe, Shield, CheckCircle, Star, Target, Heart
 import { AnimatedCounter, FadeInSection, SlideInSection } from "@/components/AnimatedComponents"
 
 export default function AboutPage() {
+  const about = mockDb.content.about
   const [activeTab, setActiveTab] = useState("company")
 
   const stats = [
@@ -176,17 +178,9 @@ export default function AboutPage() {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <FadeInSection>
-              <h1 className="text-4xl lg:text-6xl font-bold mb-6 font-sarabun">
-                เกี่ยวกับเรา
-              </h1>
-              <p className="text-xl lg:text-2xl mb-8 text-blue-100 font-sarabun">
-                KDP Engineering & Supply จำกัด
-              </p>
-              <p className="text-lg text-blue-200 font-sarabun max-w-3xl mx-auto">
-                ผู้นำด้านการจำหน่ายอุปกรณ์ไฟฟ้าอุตสาหกรรมคุณภาพสูง 
-                ด้วยประสบการณ์กว่า 15 ปี และความเป็นตัวแทนจำหน่าย O-Z/Gedney อย่างเป็นทางการ
-              </p>
-            </FadeInSection>
+              <h1 className="text-4xl lg:text-6xl font-bold mb-6 font-sarabun">{about.title}</h1>
+              <p className="text-xl lg:text-2xl mb-8 text-blue-100 font-sarabun">{about.body}</p>
+              </FadeInSection>
           </div>
         </div>
       </section>
