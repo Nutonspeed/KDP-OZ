@@ -1,4 +1,3 @@
-'use server'
 
 import { mockOrders, mockUsers, mockProducts } from '@/lib/mockDb'
 
