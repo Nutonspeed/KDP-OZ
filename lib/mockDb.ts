@@ -102,6 +102,11 @@ export const mockProducts: Product[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     stock_quantity: 10,
+    // Additional mock fields for extended product features
+    tags: ['featured', 'new'],
+    discount_price: 80,
+    sale_start_date: new Date().toISOString(),
+    sale_end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
     id: '2',
@@ -117,6 +122,11 @@ export const mockProducts: Product[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     stock_quantity: 5,
+    // Additional mock fields for extended product features
+    tags: ['sale', 'popular'],
+    discount_price: 150,
+    sale_start_date: new Date().toISOString(),
+    sale_end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
   },
 ]
 
