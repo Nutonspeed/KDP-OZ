@@ -2,13 +2,14 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { DollarSign, Package, Users, UserPlus, PackagePlus, ShoppingCart } from 'lucide-react';
+import { DollarSign, Package, Users, UserPlus, PackagePlus, ShoppingCart, Ticket } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { fetchUserCount, fetchRecentUsers } from '@/actions/users';
 import { fetchProductCount, fetchRecentProducts } from '@/actions/products';
 import { fetchOrderCount, fetchRecentOrders } from '@/actions/orders';
 import { fetchLeadCount } from '@/actions/leads';
+import { fetchCouponCount } from '@/actions/coupons';
 import {
   getWeeklySalesSummary,
   getUserGrowthTrend,
@@ -34,6 +35,7 @@ export default function AdminDashboardPage() {
   const [productCount, setProductCount] = useState<number | null>(null);
   const [orderCount, setOrderCount] = useState<number | null>(null);
   const [leadCount, setLeadCount] = useState<number | null>(null);
+  const [couponCount, setCouponCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   interface RecentUser { id: string; email: string; created_at: string }
@@ -66,6 +68,7 @@ export default function AdminDashboardPage() {
           products,
           orders,
           leads,
+          coupons,
           recentUsersRes,
           recentProductsRes,
           recentOrdersRes,
@@ -77,6 +80,7 @@ export default function AdminDashboardPage() {
           fetchProductCount(),
           fetchOrderCount(),
           fetchLeadCount(),
+          fetchCouponCount(),
           fetchRecentUsers(5),
           fetchRecentProducts(5),
           fetchRecentOrders(5),
@@ -94,11 +98,13 @@ export default function AdminDashboardPage() {
         if (salesSummaryRes.error) throw new Error(salesSummaryRes.error);
         if (userGrowthRes.error) throw new Error(userGrowthRes.error);
         if (dailyOrdersRes.error) throw new Error(dailyOrdersRes.error);
+        if (coupons.error) throw new Error(coupons.error);
 
         setUserCount(users.count);
         setProductCount(products.count);
         setOrderCount(orders.count);
         setLeadCount(leads); // fetchLeadCount returns number directly
+        setCouponCount(coupons.count);
         setRecentUsers(recentUsersRes.users);
         setRecentProducts(recentProductsRes.products);
         setRecentOrders(recentOrdersRes.orders);
@@ -125,7 +131,7 @@ export default function AdminDashboardPage() {
 
       {!loading && !error && (
         <>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <div className="flex items-center gap-2">
@@ -186,6 +192,21 @@ export default function AdminDashboardPage() {
               <p className="text-xs text-muted-foreground">+5% from last month</p>
             </CardContent>
           </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium">Total Coupons</CardTitle>
+                  <Ticket className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <Button variant="link" asChild className="h-auto p-0">
+                  <Link href={{ pathname: '/admin/coupons' }}>View all</Link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{couponCount !== null ? couponCount : 'N/A'}</div>
+                <p className="text-xs text-muted-foreground">+0% from last month</p>
+              </CardContent>
+            </Card>
         </div>
 
           <h2 className="text-2xl font-bold mt-12 mb-4">Summary</h2>
