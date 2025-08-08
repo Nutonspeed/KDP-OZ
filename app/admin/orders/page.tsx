@@ -101,6 +101,36 @@ export default function AdminOrders() {
     }
   }
 
+  // Export the current list of orders to a CSV file.  Only top-level
+  // fields are included; order items and shipping details are omitted for
+  // simplicity.  The CSV file will download automatically when this
+  // function is invoked.
+  const handleExportCSV = () => {
+    if (!orders || orders.length === 0) {
+      alert('ไม่มีคำสั่งซื้อสำหรับส่งออก');
+      return
+    }
+    const headers = ['id', 'user_id', 'total_amount', 'status', 'payment_status', 'created_at']
+    const lines = orders.map((o) => [
+      o.id,
+      o.user_id,
+      o.total_amount,
+      o.status,
+      o.payment_status,
+      o.created_at,
+    ])
+    const csv = [headers.join(','), ...lines.map((row) => row.join(','))].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.setAttribute('href', url)
+    link.setAttribute('download', 'orders.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
   const getStatusBadgeVariant = (status: Order['status']) => {
     switch (status) {
       case 'pending':
@@ -124,6 +154,10 @@ export default function AdminOrders() {
             <h1 className="text-3xl font-bold text-slate-900 mb-2 font-sarabun">จัดการคำสั่งซื้อ</h1>
             <p className="text-gray-600 font-sarabun">ดูและจัดการคำสั่งซื้อของลูกค้า</p>
           </div>
+          {/* Export CSV button */}
+          <Button variant="outline" onClick={handleExportCSV} className="font-sarabun">
+            ส่งออก CSV
+          </Button>
         </div>
 
         <Card>
