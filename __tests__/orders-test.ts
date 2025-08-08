@@ -1,5 +1,6 @@
 import { fetchOrders, createOrder, updateOrderStatus } from '@/actions/orders'
-import { mockOrders } from '@/lib/mockDb'
+// Align the test data with the orders module used by actions
+import { mockOrders } from '@/lib/mock/orders'
 
 describe('orders actions', () => {
   test('fetchOrders returns mock data', async () => {

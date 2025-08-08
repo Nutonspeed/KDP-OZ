@@ -275,10 +275,12 @@ export default function AdminUsers() {
                 </div>
               </form>
             </DialogContent>
-          </Dialog>
-        </div>
+            </Dialog>
+          </div>
+          {/* Close header wrapper */}
+          </div>
 
-        <Card>
+          <Card>
           <CardHeader>
             <CardTitle className="font-sarabun">รายการผู้ใช้</CardTitle>
             <CardDescription className="font-sarabun">จำนวนผู้ใช้ทั้งหมด: {users.length} รายการ</CardDescription>

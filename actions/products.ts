@@ -1,5 +1,6 @@
 
-import { mockProducts } from '@/lib/mockDb'
+// Use the standalone mock products so tests reference the same data instance
+import { mockProducts } from '@/lib/mock/products'
 import { Product } from '@/types/product'
 
 export async function fetchProducts(page: number = 1, limit: number = 10) {

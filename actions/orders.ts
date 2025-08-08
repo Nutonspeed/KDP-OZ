@@ -1,11 +1,8 @@
 
-import {
-  mockOrders,
-  mockPayments,
-  mockShippings,
-  MockOrder,
-  MockOrderItem,
-} from '@/lib/mockDb'
+// Use the standalone mock orders so tests reference the same data instance
+import { mockOrders, MockOrder, MockOrderItem } from '@/lib/mock/orders'
+// Payments and shippings remain in the shared mock database
+import { mockPayments, mockShippings } from '@/lib/mockDb'
 
 export interface OrderItem
   extends Omit<MockOrderItem, 'price_at_purchase'> {
@@ -43,7 +40,7 @@ export async function createOrder(
   userId: string,
   totalAmount: number,
   cartItems: CartItem[],
-  shipping: {
+  shipping?: {
     address: string
     city: string
     state: string
@@ -58,14 +55,23 @@ export async function createOrder(
   // Construct a shipping address object compatible with the MockOrder type.  Name
   // and address line2 are omitted because they are not collected in the
   // checkout form. If needed, these fields can be added later.
-  const shippingAddress = {
-    name: '',
-    address_line1: shipping.address,
-    city: shipping.city,
-    state: shipping.state,
-    zip_code: shipping.zip,
-    country: shipping.country,
-  }
+  const shippingAddress = shipping
+    ? {
+        name: '',
+        address_line1: shipping.address,
+        city: shipping.city,
+        state: shipping.state,
+        zip_code: shipping.zip,
+        country: shipping.country,
+      }
+    : {
+        name: '',
+        address_line1: '',
+        city: '',
+        state: '',
+        zip_code: '',
+        country: '',
+      }
   const order: Order = {
     id: newId,
     user_id: userId,
