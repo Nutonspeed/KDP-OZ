@@ -1,4 +1,3 @@
-'use server'
 
 import { mockLeads, Lead } from '@/lib/mockDb'
 
