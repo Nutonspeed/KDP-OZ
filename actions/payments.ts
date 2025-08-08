@@ -1,4 +1,3 @@
-'use server'
 
 import { mockPayments, mockOrders } from '@/lib/mockDb'
 import { updateOrderStatus } from './orders'
