@@ -2,14 +2,47 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { Product } from "@/types/product";
+import { signIn, signOut, getSession } from "@/actions/auth";
 
-export const useAuthStore = create(() => ({
-  isAuthenticated: true,
-  user: { id: '1', email: 'mock@example.com' },
-  login: () => {},
-  logout: () => {},
-  checkAuth: () => true,
-}));
+interface AuthUser {
+  id: string
+  email: string
+}
+
+interface AuthState {
+  isAuthenticated: boolean
+  user: AuthUser | null
+  login: (email: string, password: string) => Promise<boolean>
+  logout: () => Promise<void>
+  checkAuth: () => Promise<boolean>
+}
+
+export const useAuthStore = create<AuthState>()((set) => ({
+  isAuthenticated: false,
+  user: null,
+  login: async (email, password) => {
+    const user = await signIn({ email, password })
+    if (user) {
+      set({ isAuthenticated: true, user })
+      return true
+    }
+    set({ isAuthenticated: false, user: null })
+    return false
+  },
+  logout: async () => {
+    await signOut()
+    set({ isAuthenticated: false, user: null })
+  },
+  checkAuth: async () => {
+    const session = await getSession()
+    if (session?.user) {
+      set({ isAuthenticated: true, user: session.user })
+      return true
+    }
+    set({ isAuthenticated: false, user: null })
+    return false
+  },
+}))
 // Product Store
 interface ProductState {
   products: Product[]

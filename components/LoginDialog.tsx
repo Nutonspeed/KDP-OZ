@@ -30,10 +30,14 @@ export function LoginDialog({ children }: LoginDialogProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    login()
-    setIsOpen(false)
-    router.push("/admin")
-    toast({ title: "เข้าสู่ระบบสำเร็จ" })
+    const success = await login(credentials.email, credentials.password)
+    if (success) {
+      setIsOpen(false)
+      router.push("/admin")
+      toast({ title: "เข้าสู่ระบบสำเร็จ" })
+    } else {
+      toast({ title: "อีเมลหรือรหัสผ่านไม่ถูกต้อง", variant: "destructive" })
+    }
   }
 
   return (
