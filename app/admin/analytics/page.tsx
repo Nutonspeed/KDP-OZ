@@ -6,6 +6,8 @@ import type { DateRange } from 'react-day-picker';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import ChartPanel from '@/components/analytics/ChartPanel';
 import TopProductsTable from '@/components/analytics/TopProductsTable';
+import RealtimeSalesChart from '@/components/analytics/RealtimeSalesChart';
+import { useRealtimeOrders } from '@/hooks/useRealtimeOrders';
 import {
   getSalesSummaryRange,
   getUserGrowthTrendRange,
@@ -44,6 +46,7 @@ export default function AdminAnalyticsPage() {
   const [userData, setUserData] = useState<CountPoint[]>([]);
   const [orderData, setOrderData] = useState<CountPoint[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
+  const realtimeOrders = useRealtimeOrders();
 
   useEffect(() => {
     async function load() {
@@ -84,6 +87,12 @@ export default function AdminAnalyticsPage() {
       </div>
 
       <div className="grid gap-6">
+        {(metric === 'all' || metric === 'sales') && (
+          <ChartPanel title="Real-time Sales" hasData={realtimeOrders.length > 0}>
+            <RealtimeSalesChart orders={realtimeOrders} />
+          </ChartPanel>
+        )}
+
         {(metric === 'all' || metric === 'sales') && (
           <ChartPanel title="Sales" hasData={salesData.length > 0}>
             <ResponsiveContainer>
