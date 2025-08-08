@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
 import { createOrder } from '@/actions/orders';
 import { useToast } from '@/components/ui/use-toast';
+import { applyCoupon } from '@/actions/coupons';
 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the Stripe object on every render.
@@ -38,6 +39,10 @@ export default function CheckoutPage() {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [isOrderCreating, setIsOrderCreating] = useState(false);
   const [orderCreationError, setOrderCreationError] = useState<string | null>(null);
+  // Coupon state: code input, applied discount amount, and any message to show.
+  const [couponCode, setCouponCode] = useState('');
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponMessage, setCouponMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (cartItems.length === 0) {
@@ -50,9 +55,11 @@ export default function CheckoutPage() {
     setOrderCreationError(null);
 
     // Pass the shipping address to createOrder so it can be stored with the order
+    // Apply coupon discount to the order total before creating the order
+    const amountToCharge = Math.max(0, totalAmount - couponDiscount);
     const { success, orderId: newOrderId, error } = await createOrder(
       user.id,
-      totalAmount,
+      amountToCharge,
       cartItems,
       shippingAddress
     );
@@ -60,7 +67,7 @@ export default function CheckoutPage() {
     if (success && newOrderId) {
       setOrderId(newOrderId);
       // Now create payment intent
-      const { clientSecret: newClientSecret, error: paymentIntentError } = await createPaymentIntent(totalAmount, newOrderId);
+      const { clientSecret: newClientSecret, error: paymentIntentError } = await createPaymentIntent(amountToCharge, newOrderId);
 
       if (newClientSecret) {
         setClientSecret(newClientSecret);
@@ -85,6 +92,22 @@ export default function CheckoutPage() {
       });
     }
     setIsOrderCreating(false);
+  };
+
+  // Handle applying a coupon code. If valid, sets the discount and clears any error messages.
+  const handleApplyCoupon = async () => {
+    if (!couponCode) {
+      setCouponMessage('Please enter a coupon code.');
+      return;
+    }
+    const { success, discount, error } = await applyCoupon(couponCode, totalAmount);
+    if (success) {
+      setCouponDiscount(discount);
+      setCouponMessage(null);
+    } else {
+      setCouponDiscount(0);
+      setCouponMessage(error || 'Invalid coupon code.');
+    }
   };
 
   if (cartItems.length === 0) {
@@ -192,9 +215,30 @@ export default function CheckoutPage() {
                 </div>
               ))}
             </div>
+            {/* Coupon input section */}
+            <div className="mt-2 flex items-center space-x-2">
+              <Input
+                id="coupon"
+                type="text"
+                placeholder="Coupon code"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value)}
+                className="flex-1"
+              />
+              <Button variant="secondary" onClick={handleApplyCoupon}>
+                Apply
+              </Button>
+            </div>
+            {couponMessage && <p className="text-sm text-red-500">{couponMessage}</p>}
+            {couponDiscount > 0 && (
+              <div className="flex justify-between items-center text-green-600">
+                <span>Discount:</span>
+                <span>- ${couponDiscount.toFixed(2)}</span>
+              </div>
+            )}
             <div className="border-t pt-4 flex justify-between items-center font-bold text-lg">
               <span>Total:</span>
-              <span>${totalAmount.toFixed(2)}</span>
+              <span>${(totalAmount - couponDiscount).toFixed(2)}</span>
             </div>
 
             {orderCreationError && <p className="text-red-500 text-sm">{orderCreationError}</p>}
