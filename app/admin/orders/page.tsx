@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { Eye, Edit, Trash2 } from 'lucide-react'
 import { useAuthStore } from "@/lib/store"
-import { fetchOrders, updateOrder, deleteOrder, Order, OrderItem } from "@/actions/orders"
+import { fetchOrders, updateOrder, deleteOrder, Order, OrderItem, createInvoiceForOrder } from "@/actions/orders"
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
 
@@ -101,6 +101,17 @@ export default function AdminOrders() {
     }
   }
 
+  const handleGenerateInvoice = async (id: string) => {
+    const result = await createInvoiceForOrder(id)
+    if (result.success) {
+      const { orders: fetchedOrders } = await fetchOrders()
+      setOrders(fetchedOrders)
+      alert('สร้างใบแจ้งหนี้เรียบร้อย')
+    } else {
+      alert(result.error)
+    }
+  }
+
   // Export the current list of orders to a CSV file.  Only top-level
   // fields are included; order items and shipping details are omitted for
   // simplicity.  The CSV file will download automatically when this
@@ -175,6 +186,7 @@ export default function AdminOrders() {
                   <TableHead className="font-sarabun">ยอดรวม</TableHead>
                   <TableHead className="font-sarabun">สถานะ</TableHead>
                   <TableHead className="font-sarabun">สถานะชำระเงิน</TableHead>
+                  <TableHead className="font-sarabun">ใบแจ้งหนี้</TableHead>
                   <TableHead className="font-sarabun">จัดการ</TableHead>
                 </TableRow>
               </TableHeader>
@@ -199,6 +211,15 @@ export default function AdminOrders() {
                         {order.payment_status === 'unpaid' && 'ยังไม่ชำระ'}
                         {order.payment_status === 'refunded' && 'คืนเงินแล้ว'}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="font-sarabun">
+                      {order.invoice_url ? (
+                        <a href={order.invoice_url} target="_blank" className="underline">เปิด</a>
+                      ) : (
+                        <Button size="sm" variant="outline" onClick={() => handleGenerateInvoice(order.id)}>
+                          สร้าง
+                        </Button>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
@@ -237,6 +258,14 @@ export default function AdminOrders() {
                   <p><strong>ยอดรวม:</strong> ฿{selectedOrder.total_amount.toLocaleString()}</p>
                   <p><strong>สถานะ:</strong> <Badge variant={getStatusBadgeVariant(selectedOrder.status)}>{selectedOrder.status}</Badge></p>
                   <p><strong>สถานะชำระเงิน:</strong> <Badge variant={selectedOrder.payment_status === 'paid' ? 'secondary' : 'default'}>{selectedOrder.payment_status}</Badge></p>
+                  {selectedOrder.invoice_url && (
+                    <p>
+                      <strong>ใบแจ้งหนี้:</strong>{' '}
+                      <a href={selectedOrder.invoice_url} target="_blank" className="underline">
+                        เปิด
+                      </a>
+                    </p>
+                  )}
                   {selectedOrder.notes && <p><strong>หมายเหตุ:</strong> {selectedOrder.notes}</p>}
                 </div>
                 <div>

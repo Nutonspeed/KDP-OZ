@@ -16,6 +16,8 @@ export interface MockOrder {
   created_at: string;
   order_items?: MockOrderItem[];
   notes?: string;
+  invoice_url?: string;
+  invoice_id?: string;
   shipping_address?: {
     name: string;
     address_line1: string;
@@ -50,5 +52,6 @@ export const mockOrders: MockOrder[] = [
       country: 'TH',
       phone: '000-0000',
     },
+    invoice_url: 'https://example.com/invoices/1.pdf',
   },
 ];

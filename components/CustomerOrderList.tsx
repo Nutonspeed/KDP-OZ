@@ -109,6 +109,13 @@ export default function CustomerOrderList({ orders }: CustomerOrderListProps) {
             <div className="mt-2 text-right text-sm text-gray-600 font-sarabun">
               ที่อยู่จัดส่ง: {order.shipping_address?.name}, {order.shipping_address?.address_line1}, {order.shipping_address?.city}, {order.shipping_address?.zip_code}
             </div>
+            {order.invoice_url && (
+              <div className="mt-2 text-right text-sm font-sarabun">
+                <a href={order.invoice_url} target="_blank" className="text-blue-600 underline">
+                  ดาวน์โหลดใบแจ้งหนี้
+                </a>
+              </div>
+            )}
           </CardContent>
         </Card>
       ))}

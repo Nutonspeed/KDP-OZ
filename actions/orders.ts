@@ -1,6 +1,7 @@
 
 // Use the standalone mock orders so tests reference the same data instance
 import { mockOrders, MockOrder, MockOrderItem } from '@/lib/mock/orders'
+import { generateInvoice } from '@/lib/db/orders'
 // Payments and shippings remain in the shared mock database
 import { mockPayments, mockShippings } from '@/lib/mockDb'
 
@@ -192,4 +193,47 @@ export async function updateShippingStatus(orderId: string, status: string): Pro
   // If no shipping record exists, create one
   mockShippings.push({ id: orderId, order_id: orderId, status: status as any, updated_at: now })
   return { success: true }
+}
+
+// Create an invoice for the given order and persist the invoice URL on the
+// order record.  A mock invoice is generated when Stripe credentials are not
+// configured.
+export async function createInvoiceForOrder(orderId: string) {
+  const order = mockOrders.find(o => o.id === orderId)
+  if (!order) {
+    return { success: false, error: 'Order not found' }
+  }
+  if (order.invoice_url) {
+    return { success: true, invoiceUrl: order.invoice_url }
+  }
+  const invoice = await generateInvoice(orderId, order.total_amount)
+  order.invoice_url = invoice.url
+  order.invoice_id = invoice.id
+  return { success: true, invoiceUrl: invoice.url }
+}
+
+// Mark an order as paid without touching any external payment provider. This
+// is primarily used for administrative testing flows.
+export async function markOrderPaid(orderId: string): Promise<ActionResult> {
+  const order = mockOrders.find(o => o.id === orderId)
+  if (!order) {
+    return { success: false, error: 'Order not found' }
+  }
+  order.payment_status = 'paid'
+  return { success: true }
+}
+
+// Generate a simple CSV receipt for the order. Real implementations would
+// render a PDF; however CSV keeps the example lightweight.
+export async function exportReceipt(orderId: string) {
+  const order = mockOrders.find(o => o.id === orderId)
+  if (!order) {
+    return { success: false, error: 'Order not found' }
+  }
+  const headers = ['product', 'quantity', 'price']
+  const lines = (order.order_items || []).map((item) =>
+    [item.product_name, item.quantity, item.price_at_purchase].join(',')
+  )
+  const csv = [headers.join(','), ...lines].join('\n')
+  return { success: true, data: csv }
 }
