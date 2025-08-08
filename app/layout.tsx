@@ -20,6 +20,7 @@ export const metadata: Metadata = {
   title: "O-Z/Gedney Conduit Body | KDP Engineering & Supply",
   description: "ผู้จำหน่าย O-Z/Gedney Conduit Body คุณภาพสูง มาตรฐาน UL และ NEMA สำหรับงานไฟฟ้าอุตสาหกรรม",
   keywords: "conduit body, O-Z Gedney, KDP Engineering, อุปกรณ์ไฟฟ้า, อุตสาหกรรม",
+  metadataBase: new URL("https://kdp-conduit.vercel.app"),
   openGraph: {
     title: "O-Z/Gedney Conduit Body | KDP Engineering & Supply",
     description: "ผู้จำหน่าย O-Z/Gedney Conduit Body คุณภาพสูง มาตรฐาน UL และ NEMA",
