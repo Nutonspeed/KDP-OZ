@@ -1,8 +1,6 @@
 'use server'
 
-import { mockOrders } from '@/lib/mock/orders'
-import { mockUsers } from '@/lib/mock/users'
-import { mockProducts } from '@/lib/mock/products'
+import { mockOrders, mockUsers, mockProducts } from '@/lib/mockDb'
 
 export interface SalesSummaryPoint {
   date: string
