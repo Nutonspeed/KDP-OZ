@@ -1,6 +1,6 @@
 'use server'
 
-import { mockProducts } from '@/lib/mock/products'
+import { mockProducts } from '@/lib/mockDb'
 import { Product } from '@/types/product'
 
 export async function fetchProducts(page: number = 1, limit: number = 10) {
@@ -25,14 +25,35 @@ export async function fetchRecentProducts(limit: number) {
 type ActionResult<T = {}> = { success: boolean; error?: string } & T
 
 export async function addProduct(productData: Omit<Product, 'id' | 'created_at' | 'updated_at'>): Promise<ActionResult<{ product: Product }>> {
-  return { success: true, product: { ...productData, id: 'new', created_at: '', updated_at: '' } as Product }
+  const newId = (mockProducts.length + 1).toString()
+  const now = new Date().toISOString()
+  const newProduct: Product = {
+    id: newId,
+    created_at: now,
+    updated_at: now,
+    ...productData,
+  }
+  mockProducts.push(newProduct)
+  return { success: true, product: newProduct }
 }
 
 export async function updateProduct(id: string, productData: Partial<Omit<Product, 'id' | 'created_at'>>): Promise<ActionResult<{ product: Product | null }>> {
-  const product = mockProducts.find(p => p.id === id) || null
-  return { success: true, product }
+  const idx = mockProducts.findIndex(p => p.id === id)
+  if (idx === -1) {
+    return { success: false, error: 'Product not found', product: null }
+  }
+  const existing = mockProducts[idx]
+  // Update updated_at timestamp and merge new fields
+  const updated = { ...existing, ...productData, updated_at: new Date().toISOString() }
+  mockProducts[idx] = updated
+  return { success: true, product: updated }
 }
 
 export async function deleteProduct(id: string): Promise<ActionResult> {
-  return { success: true }
+  const idx = mockProducts.findIndex(p => p.id === id)
+  if (idx >= 0) {
+    mockProducts.splice(idx, 1)
+    return { success: true }
+  }
+  return { success: false, error: 'Product not found' }
 }
