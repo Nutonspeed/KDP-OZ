@@ -21,6 +21,20 @@ This project requires **Node.js 18 or higher**.
 3. Run the development server with `pnpm dev`.
 4. Commit and push changes from your local environment.
 
+### Leads API
+
+The project now includes a simple lead management backend. The `/api/leads` endpoint
+returns stored leads via `GET` and accepts new leads via `POST`. The `GET` handler
+supports filtering by `email`, `status`, or a free-text `q` search parameter to
+narrow results.
+Individual records can be fetched, partially updated, replaced, or removed via
+`/api/leads/:id` using `GET`, `PATCH`, `PUT`, and `DELETE` respectively. Requests
+are validated with [Zod](https://zod.dev) and invalid payloads return `400`
+errors. Notes can be appended to a lead with `POST /api/leads/:id/notes` by
+sending a JSON body of `{ "note": "follow up" }`. By default data is kept
+in-memory using mock data, but if the `POSTGRES_URL` environment variable is
+provided the routes will persist leads to that database using Neon.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -161,7 +161,7 @@ export function InteractiveProductCard({ product }: { product: any }) {
                         : "bg-white text-gray-600 border-gray-300 hover:border-blue-300"
                     }`}
                   >
-                    {size}"
+                      {size}&quot;
                   </motion.button>
                 ))}
               </div>

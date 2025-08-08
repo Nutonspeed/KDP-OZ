@@ -42,8 +42,17 @@ export default function HomePage() {
     setIsSubmitting(true)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerName: contactForm.name,
+          company: contactForm.company,
+          phone: contactForm.phone,
+          email: contactForm.email,
+          notes: contactForm.message ? [contactForm.message] : [],
+        }),
+      })
 
       toast({
         title: "ส่งข้อความสำเร็จ",
@@ -222,7 +231,7 @@ export default function HomePage() {
                       <div className="flex flex-wrap gap-1 mb-3">
                         {product.sizes.slice(0, 4).map((size) => (
                           <Badge key={size} variant="secondary" className="text-xs">
-                            {size}"
+                              {size}&quot;
                           </Badge>
                         ))}
                         {product.sizes.length > 4 && (

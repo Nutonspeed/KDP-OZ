@@ -1,9 +1,7 @@
-import { neon } from '@neondatabase/serverless';
+import { neon, NeonQueryFunction } from '@neondatabase/serverless'
 
-// Ensure POSTGRES_URL is set in your environment variables
-if (!process.env.POSTGRES_URL) {
-  throw new Error('POSTGRES_URL environment variable is not set.');
-}
-
-// Create a reusable SQL client instance
-export const sql = neon(process.env.POSTGRES_URL);
+// Create a reusable SQL client instance when a connection string is provided.
+// If no database is configured, `sql` will be `null` allowing callers to
+// implement graceful fallbacks (e.g. in-memory mocks).
+export const sql: NeonQueryFunction<false, false> | null =
+  process.env.POSTGRES_URL ? neon(process.env.POSTGRES_URL) : null
