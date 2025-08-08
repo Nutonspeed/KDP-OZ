@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Product } from "@/types/product"
 import { useCartStore } from "@/lib/store"
 import { ShoppingCart, Minus, Plus } from 'lucide-react'
+import { trackFacebookPixel } from "@/lib/facebookPixel"
 
 interface ProductDetailClientProps {
   product: Product
@@ -27,6 +28,12 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
     if (quantity > 0 && availableStock >= quantity) {
       addItem(product, quantity);
       setQuantity(1); // Reset quantity after adding to cart
+      trackFacebookPixel('AddToCart', {
+        content_name: product.name,
+        value: product.base_price,
+        currency: 'THB',
+        quantity,
+      })
     } else if (isOutOfStock) {
       alert("สินค้าหมดสต็อกแล้ว");
     } else {

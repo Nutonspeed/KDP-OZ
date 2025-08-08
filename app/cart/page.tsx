@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -8,12 +9,17 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { useCartStore } from "@/lib/store"
 import { Trash2, ShoppingCart, ArrowRight } from 'lucide-react'
+import { trackFacebookPixel } from "@/lib/facebookPixel"
 
 export default function CartPage() {
   const cartItems = useCartStore((state) => state.items)
   const removeItem = useCartStore((state) => state.removeItem)
   const updateItemQuantity = useCartStore((state) => state.updateItemQuantity)
   const getTotalPrice = useCartStore((state) => state.getTotalPrice)
+
+  useEffect(() => {
+    trackFacebookPixel("PageView")
+  }, [])
 
   if (cartItems.length === 0) {
     return (

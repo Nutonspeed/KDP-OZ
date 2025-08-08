@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Phone, Mail, MapPin, Clock, Send, MessageCircle, Building, Users, Globe, CheckCircle } from 'lucide-react'
 import { FadeInSection, SlideInSection } from "@/components/AnimatedComponents"
 import { useToast } from "@/hooks/use-toast"
-import { fbPixelTrack } from "@/components/FacebookPixel"
+import { trackFacebookPixel } from "@/lib/facebookPixel"
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -36,7 +36,7 @@ export default function ContactPage() {
       await new Promise(resolve => setTimeout(resolve, 2000))
       
       // Track lead conversion
-      fbPixelTrack.lead("Contact Form")
+      trackFacebookPixel("Lead", { content_name: "Contact Form" })
       
       toast({
         title: "ส่งข้อความสำเร็จ!",
