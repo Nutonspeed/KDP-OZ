@@ -1,10 +1,10 @@
 import { fetchOrders, createOrder, updateOrderStatus } from '@/actions/orders'
-import { mockOrders } from '@/lib/mock/orders'
+import { mockDb } from '@/lib/mockDb'
 
 describe('orders actions', () => {
   test('fetchOrders returns mock data', async () => {
     const result = await fetchOrders(1,10)
-    expect(result).toEqual({ orders: mockOrders, totalCount: mockOrders.length, error: null })
+    expect(result).toEqual({ orders: mockDb.orders, totalCount: mockDb.orders.length, error: null })
   })
 
   test('createOrder returns success', async () => {
