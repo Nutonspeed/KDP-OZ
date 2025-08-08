@@ -11,12 +11,13 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Search, Phone, Mail, MapPin, CheckCircle, Shield, Award, Users, Clock, Star, Truck } from "lucide-react"
-import { products } from "@/lib/mockData"
+import { mockDb } from "@/lib/mockDb"
 import { AnimatedCounter, FadeInSection, SlideInSection } from "@/components/AnimatedComponents"
 import { useToast } from "@/hooks/use-toast"
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("")
+  const products = mockDb.products
   const [featuredProducts, setFeaturedProducts] = useState(products.slice(0, 8))
   const [contactForm, setContactForm] = useState({
     name: "",
