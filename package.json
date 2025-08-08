@@ -7,7 +7,9 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
-    "test": "jest"
+    "test": "jest",
+    "setup:check": "node scripts/setup-check.ts",
+    "route:audit": "node scripts/route-audit.ts"
   },
   "engines": {
     "node": ">=18"
