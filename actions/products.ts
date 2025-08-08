@@ -1,4 +1,3 @@
-'use server'
 
 import { mockProducts } from '@/lib/mockDb'
 import { Product } from '@/types/product'
