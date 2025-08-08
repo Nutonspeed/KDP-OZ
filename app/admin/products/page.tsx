@@ -21,13 +21,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { PlusCircle, Edit, Trash2, UploadCloud } from 'lucide-react'
 import { useAuthStore } from "@/lib/store"
-import { fetchProducts, addProduct, updateProduct, deleteProduct } from "@/actions/products"
+import { fetchProducts, addProduct, updateProduct, deleteProduct, fetchLowStockProducts } from "@/actions/products"
+import LowStockAlert from "@/components/dashboard/LowStockAlert"
+import { toast } from "@/hooks/use-toast"
 import { Product } from "@/types/product"
 
 export default function AdminProducts() {
   const router = useRouter()
   const { isAuthenticated, checkAuth } = useAuthStore()
   const [products, setProducts] = useState<Product[]>([])
+  const [lowStockProducts, setLowStockProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [isAddEditDialogOpen, setIsAddEditDialogOpen] = useState(false)
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null)
@@ -66,6 +69,14 @@ export default function AdminProducts() {
       if (isAuthenticated) {
         const { products: fetchedProducts } = await fetchProducts()
         setProducts(fetchedProducts)
+        const { products: low } = await fetchLowStockProducts()
+        setLowStockProducts(low)
+        if (low.length) {
+          toast({
+            title: "แจ้งเตือนสต็อกต่ำ",
+            description: `${low.length} สินค้าใกล้หมดสต็อก`,
+          })
+        }
       }
       setLoading(false)
     }
@@ -242,6 +253,8 @@ export default function AdminProducts() {
             </Button>
           </div>
         </div>
+
+        <LowStockAlert products={lowStockProducts} />
 
         <Card>
           <CardHeader>
