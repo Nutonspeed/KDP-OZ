@@ -1,39 +1,35 @@
-const mockClient = {
-  from: () => ({
-    select: async () => ({ data: [], error: null }),
-    insert: async () => ({ data: null, error: null }),
-    update: async () => ({ data: null, error: null }),
-    delete: async () => ({ data: null, error: null }),
-    eq: () => mockClient.from(),
-    order: () => mockClient.from(),
-    range: () => mockClient.from(),
-    limit: () => mockClient.from(),
-  }),
-  auth: {
-    signInWithPassword: async () => ({ data: { user: { id: '1', email: 'mock@example.com' } }, error: null }),
-    signOut: async () => ({ error: null }),
-    getSession: async () => ({ data: { session: null }, error: null }),
-    admin: {
-      updateUserById: async () => ({ data: { user: null }, error: null }),
-      deleteUser: async () => ({ error: null }),
-      createUser: async () => ({ data: { user: null }, error: null }),
-    },
-  },
-  storage: {
-    from: () => ({
-      upload: async () => ({ data: null, error: null }),
-      getPublicUrl: () => ({ data: { publicUrl: '' } }),
-    }),
-  },
-};
+import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient, createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import type { CookieOptions } from '@supabase/ssr'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 
 export function createSupabaseBrowserClient() {
-  return mockClient as any;
+  return createBrowserClient(supabaseUrl, supabaseAnonKey)
 }
-export const supabaseBrowser = createSupabaseBrowserClient;
+
+export const supabaseBrowser = createSupabaseBrowserClient
+
 export function createSupabaseServerClient() {
-  return mockClient as any;
+  const cookieStore = cookies()
+  return createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      get(name: string) {
+        return cookieStore.get(name)?.value
+      },
+      set(name: string, value: string, options: CookieOptions) {
+        cookieStore.set({ name, value, ...options })
+      },
+      remove(name: string, options: CookieOptions) {
+        cookieStore.delete({ name, ...options })
+      },
+    },
+  })
 }
+
 export function createSupabaseAdminClient() {
-  return mockClient as any;
+  return createClient(supabaseUrl, supabaseServiceRoleKey)
 }
