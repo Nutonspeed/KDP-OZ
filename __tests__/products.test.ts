@@ -1,10 +1,10 @@
 import { fetchProducts, addProduct } from '@/actions/products'
-import { mockProducts } from '@/lib/mock/products'
+import { mockDb } from '@/lib/mockDb'
 
 describe('products actions', () => {
   test('fetchProducts returns mock data', async () => {
     const result = await fetchProducts(1, 10)
-    expect(result).toEqual({ products: mockProducts, totalCount: mockProducts.length, error: null })
+    expect(result).toEqual({ products: mockDb.products, totalCount: mockDb.products.length, error: null })
   })
 
   test('addProduct returns success', async () => {

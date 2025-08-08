@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ShoppingCart, Plus, Minus, Trash2 } from "lucide-react"
-import { products } from "@/lib/mockData"
+import { mockDb } from "@/lib/mockDb"
 
 interface CartItem {
   productId: string
@@ -38,7 +38,7 @@ export default function OrderPage() {
 
   useEffect(() => {
     if (productSlug) {
-      const product = products.find((p) => p.slug === productSlug)
+      const product = mockDb.products.find((p) => p.slug === productSlug)
       if (product && product.sizes.length > 0) {
         addToCart(product.id, product.name, product.sizes[0], product.base_price)
       }
@@ -127,7 +127,7 @@ export default function OrderPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {products.map((product) => (
+                {mockDb.products.map((product) => (
                   <div key={product.id} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>

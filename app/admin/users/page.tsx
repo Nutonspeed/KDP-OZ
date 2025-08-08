@@ -21,7 +21,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Edit, Trash2, Mail, KeyRound } from 'lucide-react'
 import { useAuthStore } from "@/lib/store"
 import { fetchUsers, createUser, updateUser, deleteUser } from "@/actions/users"
-import type { User } from "@/lib/mock/users"
+import type { User } from "@/lib/mockDb"
 
 export default function AdminUsers() {
   const router = useRouter()

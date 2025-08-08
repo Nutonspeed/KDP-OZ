@@ -19,7 +19,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Eye, Download } from 'lucide-react'
 import { useAuthStore } from "@/lib/store" // Keep useAuthStore for client-side auth state
 import { fetchLeads, updateLeadStatus, addNoteToLead } from "@/actions/leads" // Import new Server Actions
-import type { Lead } from "@/lib/mock/leads"
+import type { Lead } from "@/lib/mockDb"
 
 export default function AdminLeads() {
   const router = useRouter()

@@ -11,13 +11,13 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Search, Phone, Mail, MapPin, CheckCircle, Shield, Award, Users, Clock, Star, Truck } from "lucide-react"
-import { products } from "@/lib/mockData"
+import { mockDb } from "@/lib/mockDb"
 import { AnimatedCounter, FadeInSection, SlideInSection } from "@/components/AnimatedComponents"
 import { useToast } from "@/hooks/use-toast"
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("")
-  const [featuredProducts, setFeaturedProducts] = useState(products.slice(0, 8))
+  const [featuredProducts, setFeaturedProducts] = useState(mockDb.products.slice(0, 8))
   const [contactForm, setContactForm] = useState({
     name: "",
     company: "",
@@ -34,8 +34,8 @@ export default function HomePage() {
       product.type?.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
-  const productTypes = [...new Set(products.map((p) => p.type).filter(Boolean))]
-  const totalProducts = products.length
+  const productTypes = [...new Set(mockDb.products.map((p) => p.type).filter(Boolean))]
+  const totalProducts = mockDb.products.length
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -175,7 +175,7 @@ export default function HomePage() {
                       </div>
                       <h3 className="font-semibold text-sm font-sarabun">{type}</h3>
                       <p className="text-xs text-gray-500 mt-1">
-                        {products.filter((p) => p.type === type).length} รายการ
+                        {mockDb.products.filter((p) => p.type === type).length} รายการ
                       </p>
                     </CardContent>
                   </Card>
