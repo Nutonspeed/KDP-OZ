@@ -43,12 +43,30 @@ export interface CartItem { id: string; quantity: number; base_price: number }
 export async function createOrder(
   userId: string,
   totalAmount: number,
-  cartItems: CartItem[]
+  cartItems: CartItem[],
+  shipping: {
+    address: string
+    city: string
+    state: string
+    zip: string
+    country: string
+  }
 ) {
   // Generate a new unique order ID based on the current length. In a real
   // database this would be handled by the database itself.
   const newId = (mockOrders.length + 1).toString()
   const createdAt = new Date().toISOString()
+  // Construct a shipping address object compatible with the MockOrder type.  Name
+  // and address line2 are omitted because they are not collected in the
+  // checkout form. If needed, these fields can be added later.
+  const shippingAddress = {
+    name: '',
+    address_line1: shipping.address,
+    city: shipping.city,
+    state: shipping.state,
+    zip_code: shipping.zip,
+    country: shipping.country,
+  }
   const order: Order = {
     id: newId,
     user_id: userId,
@@ -56,6 +74,7 @@ export async function createOrder(
     status: 'pending',
     payment_status: 'unpaid',
     created_at: createdAt,
+    shipping_address: shippingAddress,
     order_items: cartItems.map((ci, idx) => ({
       id: `${idx + 1}`,
       product_id: ci.id,
@@ -76,6 +95,21 @@ export async function createOrder(
     created_at: createdAt,
     updated_at: createdAt,
   })
+  // Create an associated shipping record.  Even though the Shipping
+  // interface does not include address fields, we maintain the address on the
+  // order itself (shipping_address).  Shipping entries track only the
+  // status and timestamps.
+  mockShippings.push({
+    id: newId,
+    order_id: newId,
+    status: 'processing',
+    updated_at: createdAt,
+  })
+  // Notify the system that a new order has been created.  In a real
+  // implementation this could dispatch an event or send an email.  Here we
+  // simply log to the server console so that admins can see the event in
+  // their logs during testing.
+  console.log(`New order created: ${newId}`)
   return {
     success: true,
     orderId: newId,
