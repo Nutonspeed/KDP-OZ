@@ -1,4 +1,3 @@
-'use server'
 
 import { mockUsers, User } from '@/lib/mockDb'
 
@@ -49,10 +48,10 @@ export async function createUser(data: { email: string; password: string; role: 
   return { success: true, user: newUser }
 }
 
-export async function updateUser(id: string, updates: { email?: string; password?: string; user_metadata?: { role: string } }): Promise<ActionResult<{ user: User }>> {
+export async function updateUser(id: string, updates: { email?: string; password?: string; user_metadata?: { role: string } }): Promise<ActionResult<{ user: User | null }>> {
   const idx = mockUsers.findIndex(u => u.id === id)
   if (idx === -1) {
-    return { success: false, error: 'User not found' }
+    return { success: false, error: 'User not found', user: null }
   }
   const existing = mockUsers[idx]
   const updated: User = {
