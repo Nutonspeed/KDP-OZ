@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createSupabaseBrowserClient } from '@/lib/supabase'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
 export interface RealtimeOrder {
   id: string
@@ -14,6 +14,7 @@ export function useRealtimeOrders() {
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient()
+    if (!supabase) return
     const channel = (supabase as any)
       .channel('orders')
       .on(
@@ -26,7 +27,7 @@ export function useRealtimeOrders() {
       .subscribe()
 
     return () => {
-      if (supabase && 'removeChannel' in supabase) {
+      if ('removeChannel' in supabase) {
         ;(supabase as any).removeChannel(channel)
       }
     }
