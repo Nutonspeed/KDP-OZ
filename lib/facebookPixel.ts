@@ -10,7 +10,7 @@ const fbq = (...args: any[]) => {
 }
 
 export const initFacebookPixel = () => {
-  if (typeof window === 'undefined' || !FB_PIXEL_ID || (window as any).fbq) return
+  if (typeof window === 'undefined' || !FB_PIXEL_ID || (window as any).fbq || !hasConsent()) return
   ;(function (f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) {
     if (f.fbq) return
     n = f.fbq = function () {

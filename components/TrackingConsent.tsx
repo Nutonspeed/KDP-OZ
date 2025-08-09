@@ -15,18 +15,20 @@ export function TrackingConsent() {
   useEffect(() => {
     const granted = hasFacebookPixelConsent()
     setConsent(granted)
-    if (granted) {
+  }, [])
+
+  useEffect(() => {
+    if (consent) {
       initFacebookPixel()
     }
-  }, [])
+  }, [consent])
 
   if (consent) return null
 
   const accept = () => {
     grantFacebookPixelConsent()
-    initFacebookPixel()
-    trackFacebookPixel("PageView")
     setConsent(true)
+    trackFacebookPixel("PageView")
   }
 
   return (
