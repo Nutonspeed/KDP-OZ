@@ -97,7 +97,11 @@ export async function createInvoiceForOrder(orderId: string) {
   if (order.invoice_url) {
     return { success: true, invoiceUrl: order.invoice_url }
   }
-  const invoice = await generateInvoice(orderId, order.total_amount)
+  const invoiceResult = await generateInvoice(orderId, order.total_amount)
+  if (!invoiceResult.success) {
+    return { success: false, error: invoiceResult.error }
+  }
+  const invoice = invoiceResult.invoice
   await service.updateOrder(orderId, { invoice_url: invoice.url, invoice_id: invoice.id })
   return { success: true, invoiceUrl: invoice.url }
 }
