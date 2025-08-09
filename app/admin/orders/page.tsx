@@ -19,7 +19,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { Eye, Edit, Trash2 } from 'lucide-react'
 import { useAuthStore } from "@/lib/store"
-import { fetchOrders, updateOrder, deleteOrder, Order, OrderItem, createInvoiceForOrder } from "@/actions/orders"
+import { listOrders, updateOrder, deleteOrder, createInvoiceForOrder } from "@/actions/orders"
+import { Order, OrderItem } from '@/types/order'
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
 
@@ -47,7 +48,7 @@ export default function AdminOrders() {
     const loadOrders = async () => {
       setLoading(true)
       if (isAuthenticated) {
-        const { orders: fetchedOrders } = await fetchOrders()
+        const { orders: fetchedOrders } = await listOrders()
         setOrders(fetchedOrders)
       }
       setLoading(false)
@@ -78,7 +79,7 @@ export default function AdminOrders() {
     if (selectedOrder && newStatus) {
       const result = await updateOrder(selectedOrder.id, { status: newStatus })
       if (result.success) {
-        const { orders: fetchedOrders } = await fetchOrders()
+        const { orders: fetchedOrders } = await listOrders()
         setOrders(fetchedOrders)
         setIsEditDialogOpen(false)
         setSelectedOrder(null)
@@ -93,7 +94,7 @@ export default function AdminOrders() {
     if (confirm("คุณแน่ใจหรือไม่ที่จะลบคำสั่งซื้อนี้? การดำเนินการนี้ไม่สามารถย้อนกลับได้")) {
       const result = await deleteOrder(id)
       if (result.success) {
-        const { orders: fetchedOrders } = await fetchOrders()
+        const { orders: fetchedOrders } = await listOrders()
         setOrders(fetchedOrders)
       } else {
         alert(`Failed to delete order: ${result.error}`)
@@ -104,7 +105,7 @@ export default function AdminOrders() {
   const handleGenerateInvoice = async (id: string) => {
     const result = await createInvoiceForOrder(id)
     if (result.success) {
-      const { orders: fetchedOrders } = await fetchOrders()
+      const { orders: fetchedOrders } = await listOrders()
       setOrders(fetchedOrders)
       alert('สร้างใบแจ้งหนี้เรียบร้อย')
     } else {

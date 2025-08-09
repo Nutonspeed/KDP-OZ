@@ -1,41 +1,33 @@
-
-// Use the standalone mock orders so tests reference the same data instance
-import { mockOrders, MockOrder, MockOrderItem } from '@/lib/mock/orders'
 import { generateInvoice } from '@/lib/db/orders'
-// Payments and shippings remain in the shared mock database
-import { mockPayments, mockShippings } from '@/lib/mockDb'
-
-export interface OrderItem
-  extends Omit<MockOrderItem, 'price_at_purchase'> {
-  price_at_purchase: number
-  product_image_url?: string
-  product_slug?: string
-}
-
-export interface Order extends Omit<MockOrder, 'order_items'> {
-  order_items?: OrderItem[]
-}
-
-export async function fetchOrders(page: number = 1, limit: number = 10) {
-  const offset = (page - 1) * limit
-  const orders = mockOrders.slice(offset, offset + limit) as Order[]
-  return { orders, totalCount: mockOrders.length, error: null }
-}
-
-export async function fetchOrderById(orderId: string) {
-  const order = (mockOrders.find((o) => o.id === orderId) as Order) || null
-  return { order, error: null }
-}
-
-export async function fetchOrderCount() {
-  return { count: mockOrders.length, error: null }
-}
-
-export async function fetchRecentOrders(limit: number) {
-  return { orders: mockOrders.slice(0, limit) as Order[], error: null }
-}
+import { Order } from '@/types/order'
 
 export interface CartItem { id: string; quantity: number; base_price: number }
+
+type OrderService = typeof import('@/lib/db/ordersDb')
+
+async function getService(): Promise<OrderService> {
+  if (process.env.POSTGRES_URL) {
+    return await import('@/lib/db/ordersDb')
+  }
+  return await import('@/lib/services/orders')
+}
+
+export async function listOrders(page: number = 1, limit: number = 10) {
+  const service = await getService()
+  const { orders, totalCount } = await service.listOrders(page, limit)
+  return { orders, totalCount, error: null }
+}
+
+// Backwards compatibility
+export async function fetchOrders(page: number = 1, limit: number = 10) {
+  return listOrders(page, limit)
+}
+
+export async function getOrderById(id: string) {
+  const service = await getService()
+  const order = await service.getOrderById(id)
+  return { order, error: null }
+}
 
 export async function createOrder(
   userId: string,
@@ -49,157 +41,33 @@ export async function createOrder(
     country: string
   }
 ) {
-  // Generate a new unique order ID based on the current length. In a real
-  // database this would be handled by the database itself.
-  const newId = (mockOrders.length + 1).toString()
-  const createdAt = new Date().toISOString()
-  // Construct a shipping address object compatible with the MockOrder type.  Name
-  // and address line2 are omitted because they are not collected in the
-  // checkout form. If needed, these fields can be added later.
-  const shippingAddress = shipping
-    ? {
-        name: '',
-        address_line1: shipping.address,
-        city: shipping.city,
-        state: shipping.state,
-        zip_code: shipping.zip,
-        country: shipping.country,
-      }
-    : {
-        name: '',
-        address_line1: '',
-        city: '',
-        state: '',
-        zip_code: '',
-        country: '',
-      }
-  const order: Order = {
-    id: newId,
-    user_id: userId,
-    total_amount: totalAmount,
-    status: 'pending',
-    payment_status: 'unpaid',
-    created_at: createdAt,
-    shipping_address: shippingAddress,
-    order_items: cartItems.map((ci, idx) => ({
-      id: `${idx + 1}`,
-      product_id: ci.id,
-      quantity: ci.quantity,
-      price: ci.base_price,
-      price_at_purchase: ci.base_price,
-    })),
-  }
-  // Persist the new order in the mock database
-  mockOrders.push(order as MockOrder)
-  // Create an associated payment record with status unpaid
-  const paymentId = `pay_${mockPayments.length + 1}`
-  mockPayments.push({
-    id: paymentId,
-    order_id: newId,
-    amount: totalAmount,
-    status: 'unpaid',
-    created_at: createdAt,
-    updated_at: createdAt,
-  })
-  // Create an associated shipping record.  Even though the Shipping
-  // interface does not include address fields, we maintain the address on the
-  // order itself (shipping_address).  Shipping entries track only the
-  // status and timestamps.
-  mockShippings.push({
-    id: newId,
-    order_id: newId,
-    status: 'processing',
-    updated_at: createdAt,
-  })
-  // Notify the system that a new order has been created.  In a real
-  // implementation this could dispatch an event or send an email.  Here we
-  // simply log to the server console so that admins can see the event in
-  // their logs during testing.
-  console.log(`New order created: ${newId}`)
-  return {
-    success: true,
-    orderId: newId,
-    order,
-    error: null,
-  }
+  const service = await getService()
+  const order = await service.createOrder(userId, totalAmount, cartItems, shipping)
+  return { success: true, orderId: order.id, order, error: null }
 }
 
-type ActionResult = { success: boolean; error?: string }
-
-export async function updateOrder(id: string, data: Partial<Order>): Promise<ActionResult> {
-  const idx = mockOrders.findIndex(o => o.id === id)
-  if (idx === -1) {
-    return { success: false, error: 'Order not found' }
-  }
-  const existing = mockOrders[idx]
-  // Merge provided fields onto the existing order.
-  mockOrders[idx] = { ...existing, ...data } as MockOrder
-  return { success: true }
-}
-
-export async function deleteOrder(id: string): Promise<ActionResult> {
-  const orderIdx = mockOrders.findIndex(o => o.id === id)
-  if (orderIdx >= 0) {
-    mockOrders.splice(orderIdx, 1)
-    // Remove related payment records
-    const paymentIdx = mockPayments.findIndex(p => p.order_id === id)
-    if (paymentIdx >= 0) mockPayments.splice(paymentIdx, 1)
-    // Remove related shipping records
-    const shipIdx = mockShippings.findIndex(s => s.order_id === id)
-    if (shipIdx >= 0) mockShippings.splice(shipIdx, 1)
-    return { success: true }
-  }
-  return { success: false, error: 'Order not found' }
-}
-
-export async function updateOrderStatus(id: string, status: string): Promise<ActionResult> {
-  const order = mockOrders.find(o => o.id === id)
+export async function updateOrder(id: string, data: Partial<Order>) {
+  const service = await getService()
+  const order = await service.updateOrder(id, data)
   if (!order) {
-    return { success: false, error: 'Order not found' }
+    return { success: false, error: 'Order not found', order: null }
   }
-  order.status = status
-  // Update shipping status if shipping entry exists
-  const shipping = mockShippings.find(s => s.order_id === id)
-  if (shipping) {
-    shipping.status = status as any
-    shipping.updated_at = new Date().toISOString()
-  } else {
-    // Create a shipping record if none exists
-    mockShippings.push({
-      id: id,
-      order_id: id,
-      status: status as any,
-      updated_at: new Date().toISOString(),
-    })
-  }
-  return { success: true }
+  return { success: true, order }
 }
 
-export async function fetchUserOrders(userId: string) {
-  return mockOrders.filter(o => o.user_id === userId) as Order[]
+export async function updateOrderStatus(id: string, status: string) {
+  return updateOrder(id, { status })
 }
 
-// Update the shipping status for a given order. This helper can be used
-// by admin UIs to change the shipping state independently of the order
-// status.
-export async function updateShippingStatus(orderId: string, status: string): Promise<ActionResult> {
-  const shipping = mockShippings.find(s => s.order_id === orderId)
-  const now = new Date().toISOString()
-  if (shipping) {
-    shipping.status = status as any
-    shipping.updated_at = now
-    return { success: true }
-  }
-  // If no shipping record exists, create one
-  mockShippings.push({ id: orderId, order_id: orderId, status: status as any, updated_at: now })
-  return { success: true }
+export async function deleteOrder(id: string) {
+  const service = await getService()
+  const success = await service.deleteOrder(id)
+  return success ? { success: true } : { success: false, error: 'Order not found' }
 }
 
-// Create an invoice for the given order and persist the invoice URL on the
-// order record.  A mock invoice is generated when Stripe credentials are not
-// configured.
 export async function createInvoiceForOrder(orderId: string) {
-  const order = mockOrders.find(o => o.id === orderId)
+  const service = await getService()
+  const order = await service.getOrderById(orderId)
   if (!order) {
     return { success: false, error: 'Order not found' }
   }
@@ -207,33 +75,6 @@ export async function createInvoiceForOrder(orderId: string) {
     return { success: true, invoiceUrl: order.invoice_url }
   }
   const invoice = await generateInvoice(orderId, order.total_amount)
-  order.invoice_url = invoice.url
-  order.invoice_id = invoice.id
+  await service.updateOrder(orderId, { invoice_url: invoice.url, invoice_id: invoice.id })
   return { success: true, invoiceUrl: invoice.url }
-}
-
-// Mark an order as paid without touching any external payment provider. This
-// is primarily used for administrative testing flows.
-export async function markOrderPaid(orderId: string): Promise<ActionResult> {
-  const order = mockOrders.find(o => o.id === orderId)
-  if (!order) {
-    return { success: false, error: 'Order not found' }
-  }
-  order.payment_status = 'paid'
-  return { success: true }
-}
-
-// Generate a simple CSV receipt for the order. Real implementations would
-// render a PDF; however CSV keeps the example lightweight.
-export async function exportReceipt(orderId: string) {
-  const order = mockOrders.find(o => o.id === orderId)
-  if (!order) {
-    return { success: false, error: 'Order not found' }
-  }
-  const headers = ['product', 'quantity', 'price']
-  const lines = (order.order_items || []).map((item) =>
-    [item.product_name, item.quantity, item.price_at_purchase].join(',')
-  )
-  const csv = [headers.join(','), ...lines].join('\n')
-  return { success: true, data: csv }
 }
