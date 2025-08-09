@@ -17,9 +17,12 @@ import { useToast } from '@/components/ui/use-toast';
 import { applyCoupon } from '@/actions/coupons';
 import { trackFacebookPixel } from '@/lib/facebookPixel';
 
-// Make sure to call `loadStripe` outside of a component’s render to avoid
-// recreating the Stripe object on every render.
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+// Make sure to call `loadStripe` outside of a component's render to avoid
+// recreating the Stripe object on every render. If the publishable key is not
+// provided, avoid initializing Stripe to prevent runtime errors in the
+// browser.
+const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
 
 export default function CheckoutPage() {
   const cartItems = useCartStore((state) => state.items);
@@ -54,6 +57,15 @@ export default function CheckoutPage() {
   useEffect(() => {
     trackFacebookPixel('InitiateCheckout', { value: totalAmount, currency: 'THB' });
   }, []);
+
+  // If Stripe isn't configured, render a message instead of the checkout form
+  if (!stripePromise) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] p-4">
+        <p className="text-red-500">Stripe publishable key is not configured.</p>
+      </div>
+    );
+  }
 
   const handleCreateOrder = async () => {
     setIsOrderCreating(true);
