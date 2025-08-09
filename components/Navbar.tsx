@@ -6,17 +6,15 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ShoppingCart, User, LogOut, LayoutDashboard, History, Users, Package, BarChart3 } from 'lucide-react'
 import { useAuthStore, useCartStore } from '@/lib/store'
-import { useEffect } from 'react'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { useRouter } from 'next/navigation'
 
 export function Navbar() {
-  const { isAuthenticated, user, checkAuth, logout } = useAuthStore()
+  const { logout } = useAuthStore()
+  const { user, isAdmin } = useCurrentUser()
+  const isAuthenticated = !!user
   const totalCartItems = useCartStore((state) => state.getTotalItems())
   const router = useRouter()
-
-  useEffect(() => {
-    checkAuth()
-  }, [checkAuth])
 
   const handleLogout = async () => {
     await logout()
@@ -39,7 +37,7 @@ export function Navbar() {
           <Link href="/contact" className="font-medium hover:underline font-sarabun">
             ติดต่อ
           </Link>
-          {isAuthenticated && (
+          {isAdmin && (
             <Link href="/admin" className="font-medium hover:underline font-sarabun">
               Admin
             </Link>
