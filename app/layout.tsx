@@ -11,6 +11,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { StickyCTA } from "@/components/StickyCTA"
 import { TrackingConsent } from "@/components/TrackingConsent"
 import { products } from "@/lib/mockData"
+import { ErrorBoundary } from "@/components/ErrorBoundary"
 
 const inter = Inter({ subsets: ["latin"] })
 const sarabun = Sarabun({
@@ -103,7 +104,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         </noscript>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <Navbar />
-          <main className="min-h-screen">{children}</main>
+          <ErrorBoundary>
+            <main className="min-h-screen">{children}</main>
+          </ErrorBoundary>
           <Footer />
           <LiveChatWidget />
           <StickyCTA />
