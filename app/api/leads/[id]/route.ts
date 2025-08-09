@@ -21,28 +21,36 @@ const updateSchema = z.object({
   note: z.string().optional(),
 })
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
-  const lead = await getLeadById(params.id)
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params
+  const lead = await getLeadById(id)
   if (!lead) {
     return NextResponse.json({ success: false, error: 'Lead not found' }, { status: 404 })
   }
   return NextResponse.json({ success: true, lead })
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
     const data = updateSchema.parse(await req.json())
+    const { id } = await params
     if (data.note) {
-      await addNoteToLead(params.id, data.note)
+      await addNoteToLead(id, data.note)
     }
     if (data.status) {
-      await updateLeadStatus(params.id, data.status)
+      await updateLeadStatus(id, data.status)
     }
     const fields: any = { ...data }
     delete fields.note
     delete fields.status
     if (Object.keys(fields).length > 0) {
-      await updateLead(params.id, fields)
+      await updateLead(id, fields)
     }
     return NextResponse.json({ success: true })
   } catch (error) {
@@ -54,8 +62,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
-  const result = await deleteLead(params.id)
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params
+  const result = await deleteLead(id)
   return NextResponse.json(result, { status: result.success ? 200 : 404 })
 }
 

@@ -8,19 +8,27 @@ const updateSchema = z.object({
   role: z.string().optional(),
 })
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  const { user } = await fetchUserById(params.id)
+export async function GET(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params
+  const { user } = await fetchUserById(id)
   if (!user) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
   return NextResponse.json({ user })
 }
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
     const json = await req.json()
     const parsed = updateSchema.parse(json)
-    const result = await updateUser(params.id, {
+    const { id } = await params
+    const result = await updateUser(id, {
       email: parsed.email,
       password: parsed.password,
       user_metadata: parsed.role ? { role: parsed.role } : undefined,
@@ -35,7 +43,11 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
-  const result = await deleteUser(params.id)
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params
+  const result = await deleteUser(id)
   return NextResponse.json(result, { status: result.success ? 200 : 404 })
 }

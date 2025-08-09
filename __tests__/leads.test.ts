@@ -68,19 +68,20 @@ describe('leads actions', () => {
       body: JSON.stringify({ status: 'ติดตามผล', note: 'initial contact' }),
       headers: { 'Content-Type': 'application/json' },
     })
-    res = await patchLeadApi(patchReq, { params: { id: lead.id } })
+    res = await patchLeadApi(patchReq, { params: Promise.resolve({ id: lead.id }) })
     expect(res.status).toBe(200)
 
-    const singleRes = await getLeadApi(new NextRequest(`http://localhost/api/leads/${lead.id}`), {
-      params: { id: lead.id },
-    })
+    const singleRes = await getLeadApi(
+      new NextRequest(`http://localhost/api/leads/${lead.id}`),
+      { params: Promise.resolve({ id: lead.id }) },
+    )
     const singleData: any = await singleRes.json()
     expect(singleData.lead.status).toBe('ติดตามผล')
     expect(singleData.lead.notes[0]).toBe('initial contact')
 
     const delRes = await deleteLeadApi(
       new NextRequest(`http://localhost/api/leads/${lead.id}`, { method: 'DELETE' }),
-      { params: { id: lead.id } },
+      { params: Promise.resolve({ id: lead.id }) },
     )
     expect(delRes.status).toBe(200)
   })

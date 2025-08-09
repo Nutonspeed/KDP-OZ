@@ -47,18 +47,19 @@ describe('users actions', () => {
       body: JSON.stringify({ role: 'admin' }),
       headers: { 'Content-Type': 'application/json' },
     })
-    res = await patchUserApi(patchReq, { params: { id: user.id } })
+    res = await patchUserApi(patchReq, { params: Promise.resolve({ id: user.id }) })
     expect(res.status).toBe(200)
 
-    const singleRes = await getUserApi(new NextRequest(`http://localhost/api/users/${user.id}`), {
-      params: { id: user.id },
-    })
+    const singleRes = await getUserApi(
+      new NextRequest(`http://localhost/api/users/${user.id}`),
+      { params: Promise.resolve({ id: user.id }) },
+    )
     const singleData: any = await singleRes.json()
     expect(singleData.user.user_metadata.role).toBe('admin')
 
     const delRes = await deleteUserApi(
       new NextRequest(`http://localhost/api/users/${user.id}`, { method: 'DELETE' }),
-      { params: { id: user.id } },
+      { params: Promise.resolve({ id: user.id }) },
     )
     expect(delRes.status).toBe(200)
   })
