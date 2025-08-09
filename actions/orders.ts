@@ -1,5 +1,6 @@
 import { generateInvoice } from '@/lib/db/orders'
-import { Order } from '@/types/order'
+import type { Order, OrderItem } from '@/types/order'
+import type { OrderInput } from '@/lib/db/ordersDb'
 
 export interface CartItem { id: string; quantity: number; base_price: number }
 
@@ -42,7 +43,29 @@ export async function createOrder(
   }
 ) {
   const service = await getService()
-  const order = await service.createOrder(userId, totalAmount, cartItems, shipping)
+  const orderData: OrderInput = {
+    user_id: userId,
+    total_amount: totalAmount,
+    status: 'pending',
+    payment_status: 'unpaid',
+    shipping_address: shipping
+      ? {
+          name: '',
+          address_line1: shipping.address,
+          city: shipping.city,
+          state: shipping.state,
+          zip_code: shipping.zip,
+          country: shipping.country,
+        }
+      : undefined,
+    order_items: cartItems.map(ci => ({
+      product_id: ci.id,
+      quantity: ci.quantity,
+      price: ci.base_price,
+      price_at_purchase: ci.base_price,
+    })),
+  }
+  const order = await service.createOrder(orderData)
   return { success: true, orderId: order.id, order, error: null }
 }
 
@@ -78,3 +101,25 @@ export async function createInvoiceForOrder(orderId: string) {
   await service.updateOrder(orderId, { invoice_url: invoice.url, invoice_id: invoice.id })
   return { success: true, invoiceUrl: invoice.url }
 }
+
+export async function fetchOrderCount() {
+  const service = await getService()
+  const { totalCount } = await service.listOrders(1, 1)
+  return { count: totalCount, error: null }
+}
+
+export async function fetchRecentOrders(limit: number) {
+  const service = await getService()
+  const { orders } = await service.listOrders(1, limit)
+  return { orders, error: null }
+}
+
+export const fetchOrderById = getOrderById
+
+export async function fetchUserOrders(userId: string): Promise<Order[]> {
+  const service = await getService()
+  const { orders } = await service.listOrders(1, 1000)
+  return orders.filter(o => o.user_id === userId)
+}
+
+export type { Order, OrderItem }

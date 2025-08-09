@@ -1,6 +1,7 @@
 import { mockOrders, MockOrder } from '@/lib/mock/orders'
 import { mockPayments, mockShippings } from '@/lib/mockDb'
-import { Order } from '@/types/order'
+import type { Order } from '@/types/order'
+import type { OrderInput } from '@/lib/db/ordersDb'
 
 export async function listOrders(page = 1, limit = 10): Promise<{ orders: Order[]; totalCount: number }> {
   const offset = (page - 1) * limit
@@ -12,54 +13,28 @@ export async function getOrderById(id: string): Promise<Order | null> {
   return (mockOrders.find(o => o.id === id) as Order) || null
 }
 
-export interface CartItem { id: string; quantity: number; base_price: number }
-
-export async function createOrder(
-  userId: string,
-  totalAmount: number,
-  cartItems: CartItem[],
-  shipping?: {
-    address: string
-    city: string
-    state: string
-    zip: string
-    country: string
-  }
-): Promise<Order> {
+export async function createOrder(data: OrderInput): Promise<Order> {
   const newId = (mockOrders.length + 1).toString()
   const createdAt = new Date().toISOString()
-  const shippingAddress = shipping
-    ? {
-        name: '',
-        address_line1: shipping.address,
-        city: shipping.city,
-        state: shipping.state,
-        zip_code: shipping.zip,
-        country: shipping.country,
-      }
-    : {
-        name: '',
-        address_line1: '',
-        city: '',
-        state: '',
-        zip_code: '',
-        country: '',
-      }
   const order: Order = {
     id: newId,
-    user_id: userId,
-    total_amount: totalAmount,
-    status: 'pending',
-    payment_status: 'unpaid',
+    user_id: data.user_id,
+    total_amount: data.total_amount,
+    status: data.status,
+    payment_status: data.payment_status as any,
     created_at: createdAt,
-    shipping_address: shippingAddress,
-    order_items: cartItems.map((ci, idx) => ({
+    notes: data.notes,
+    shipping_address: data.shipping_address,
+    invoice_url: data.invoice_url,
+    invoice_id: data.invoice_id,
+    order_items: data.order_items?.map((ci, idx) => ({
       id: `${idx + 1}`,
       order_id: newId,
-      product_id: ci.id,
+      product_id: ci.product_id,
       quantity: ci.quantity,
-      price: ci.base_price,
-      price_at_purchase: ci.base_price,
+      price: ci.price,
+      product_name: ci.product_name,
+      price_at_purchase: ci.price_at_purchase,
     })),
   }
   mockOrders.push(order as MockOrder)
@@ -67,7 +42,7 @@ export async function createOrder(
   mockPayments.push({
     id: paymentId,
     order_id: newId,
-    amount: totalAmount,
+    amount: data.total_amount,
     status: 'unpaid',
     created_at: createdAt,
     updated_at: createdAt,

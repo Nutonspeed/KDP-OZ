@@ -5,7 +5,9 @@ export interface OrderItem {
   quantity: number
   price: number
   product_name?: string
-  price_at_purchase?: number
+  price_at_purchase: number
+  product_image_url?: string
+  product_slug?: string
 }
 
 export interface Order {
