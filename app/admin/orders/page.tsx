@@ -109,7 +109,7 @@ export default function AdminOrders() {
       setOrders(fetchedOrders)
       alert('สร้างใบแจ้งหนี้เรียบร้อย')
     } else {
-      alert(result.error)
+      alert(`ไม่สามารถสร้างใบแจ้งหนี้ได้: ${result.error}`)
     }
   }
 
