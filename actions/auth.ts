@@ -9,7 +9,7 @@ export async function signIn({
   email: string
   password: string
 }) {
-  const supabase = createSupabaseServerClient()
+  const supabase = await createSupabaseServerClient()
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
   if (error || !data.user) {
     return null
@@ -22,12 +22,12 @@ export async function signIn({
 }
 
 export async function signOut() {
-  const supabase = createSupabaseServerClient()
+  const supabase = await createSupabaseServerClient()
   await supabase.auth.signOut()
 }
 
 export async function getSession() {
-  const supabase = createSupabaseServerClient()
+  const supabase = await createSupabaseServerClient()
   const { data } = await supabase.auth.getSession()
   return data.session
 }
