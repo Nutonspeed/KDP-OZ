@@ -7,6 +7,7 @@ import { signIn, signOut, getSession } from "@/actions/auth";
 interface AuthUser {
   id: string
   email: string
+  role?: string
 }
 
 interface AuthState {
@@ -36,7 +37,12 @@ export const useAuthStore = create<AuthState>()((set) => ({
   checkAuth: async () => {
     const session = await getSession()
     if (session?.user) {
-      set({ isAuthenticated: true, user: session.user })
+      const user = {
+        id: session.user.id,
+        email: session.user.email ?? '',
+        role: (session.user as any).user_metadata?.role,
+      }
+      set({ isAuthenticated: true, user })
       return true
     }
     set({ isAuthenticated: false, user: null })

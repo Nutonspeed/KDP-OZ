@@ -1,9 +1,6 @@
 'use server'
 
-import { cookies } from 'next/headers'
-
-const AUTH_EMAIL = 'admin@example.com'
-const AUTH_PASSWORD = 'password123'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
 
 export async function signIn({
   email,
@@ -12,24 +9,25 @@ export async function signIn({
   email: string
   password: string
 }) {
-  if (email === AUTH_EMAIL && password === AUTH_PASSWORD) {
-    const cookieStore = await cookies()
-    cookieStore.set('session', 'authenticated', { httpOnly: true })
-    return { id: '1', email }
+  const supabase = await createSupabaseServerClient()
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error || !data.user) {
+    return null
   }
-  return null
+  return {
+    id: data.user.id,
+    email: data.user.email ?? '',
+    role: data.user.user_metadata?.role,
+  }
 }
 
 export async function signOut() {
-  const cookieStore = await cookies()
-  cookieStore.delete('session')
+  const supabase = await createSupabaseServerClient()
+  await supabase.auth.signOut()
 }
 
 export async function getSession() {
-  const cookieStore = await cookies()
-  const session = cookieStore.get('session')
-  if (session?.value === 'authenticated') {
-    return { user: { id: '1', email: AUTH_EMAIL } }
-  }
-  return null
+  const supabase = await createSupabaseServerClient()
+  const { data } = await supabase.auth.getSession()
+  return data.session
 }
