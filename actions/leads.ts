@@ -103,3 +103,40 @@ export async function addNoteToLead(id: string, note: string): Promise<ActionRes
   lead.updated_at = new Date().toISOString()
   return { success: true }
 }
+
+export async function getLeadById(id: string): Promise<Lead | null> {
+  const lead = mockLeads.find(l => l.id === id)
+  return lead ?? null
+}
+
+export async function updateLead(
+  id: string,
+  data: Partial<Pick<Lead, 'email' | 'customer_name' | 'phone' | 'product_interest' | 'company' | 'size' | 'quantity' | 'address'>>
+): Promise<ActionResult> {
+  const lead = mockLeads.find(l => l.id === id)
+  if (!lead) {
+    return { success: false, error: 'Lead not found' }
+  }
+  Object.assign(lead, data)
+  lead.updated_at = new Date().toISOString()
+  return { success: true }
+}
+
+export async function searchLeads(query: {
+  name?: string
+  email?: string
+  status?: string
+}): Promise<Lead[]> {
+  return mockLeads.filter(l => {
+    if (query.name && !l.customer_name.toLowerCase().includes(query.name.toLowerCase())) {
+      return false
+    }
+    if (query.email && l.email !== query.email) {
+      return false
+    }
+    if (query.status && l.status !== query.status) {
+      return false
+    }
+    return true
+  })
+}

@@ -15,6 +15,11 @@ export async function fetchRecentUsers(limit: number): Promise<{ users: User[]; 
   return { users: mockUsers.slice(0, limit), error: null }
 }
 
+export async function fetchUserById(id: string): Promise<{ user: User | null; error: null }> {
+  const user = mockUsers.find(u => u.id === id) || null
+  return { user, error: null }
+}
+
 type ActionResult<T = {}> = { success: boolean; error?: string } & T
 
 export async function updateUserRole(): Promise<ActionResult<{ user: User | null }>> {
