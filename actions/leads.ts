@@ -41,6 +41,35 @@ export async function addLead(formData: FormData): Promise<ActionResult> {
   }
 }
 
+export async function addLeadFromJson(data: {
+  name: string
+  company?: string
+  phone?: string
+  email: string
+  message?: string
+  productInterest?: string[]
+}): Promise<ActionResult> {
+  try {
+    const now = new Date().toISOString()
+    const newLead: Lead = {
+      id: (mockLeads.length + 1).toString(),
+      email: data.email,
+      customer_name: data.name,
+      phone: data.phone ?? '',
+      product_interest: data.productInterest?.join(', ') ?? '',
+      status: 'รอติดต่อ',
+      created_at: now,
+      updated_at: now,
+      notes: data.message ? [data.message] : [],
+      company: data.company,
+    }
+    mockLeads.push(newLead)
+    return { success: true }
+  } catch (err) {
+    return { success: false, error: 'Failed to add lead' }
+  }
+}
+
 export async function deleteLead(id: string): Promise<ActionResult> {
   const idx = mockLeads.findIndex(l => l.id === id)
   if (idx >= 0) {
