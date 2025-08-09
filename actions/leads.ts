@@ -41,6 +41,35 @@ export async function addLead(formData: FormData): Promise<ActionResult> {
   }
 }
 
+export async function addLeadFromJson(data: {
+  name: string
+  company?: string
+  phone?: string
+  email: string
+  message?: string
+  productInterest?: string[]
+}): Promise<ActionResult> {
+  try {
+    const now = new Date().toISOString()
+    const newLead: Lead = {
+      id: (mockLeads.length + 1).toString(),
+      email: data.email,
+      customer_name: data.name,
+      phone: data.phone ?? '',
+      product_interest: data.productInterest?.join(', ') ?? '',
+      status: 'รอติดต่อ',
+      created_at: now,
+      updated_at: now,
+      notes: data.message ? [data.message] : [],
+      company: data.company,
+    }
+    mockLeads.push(newLead)
+    return { success: true }
+  } catch (err) {
+    return { success: false, error: 'Failed to add lead' }
+  }
+}
+
 export async function deleteLead(id: string): Promise<ActionResult> {
   const idx = mockLeads.findIndex(l => l.id === id)
   if (idx >= 0) {
@@ -73,4 +102,41 @@ export async function addNoteToLead(id: string, note: string): Promise<ActionRes
   lead.notes.push(note)
   lead.updated_at = new Date().toISOString()
   return { success: true }
+}
+
+export async function getLeadById(id: string): Promise<Lead | null> {
+  const lead = mockLeads.find(l => l.id === id)
+  return lead ?? null
+}
+
+export async function updateLead(
+  id: string,
+  data: Partial<Pick<Lead, 'email' | 'customer_name' | 'phone' | 'product_interest' | 'company' | 'size' | 'quantity' | 'address'>>
+): Promise<ActionResult> {
+  const lead = mockLeads.find(l => l.id === id)
+  if (!lead) {
+    return { success: false, error: 'Lead not found' }
+  }
+  Object.assign(lead, data)
+  lead.updated_at = new Date().toISOString()
+  return { success: true }
+}
+
+export async function searchLeads(query: {
+  name?: string
+  email?: string
+  status?: string
+}): Promise<Lead[]> {
+  return mockLeads.filter(l => {
+    if (query.name && !l.customer_name.toLowerCase().includes(query.name.toLowerCase())) {
+      return false
+    }
+    if (query.email && l.email !== query.email) {
+      return false
+    }
+    if (query.status && l.status !== query.status) {
+      return false
+    }
+    return true
+  })
 }
