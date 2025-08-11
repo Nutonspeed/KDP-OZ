@@ -5,6 +5,13 @@ import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next({ request: { headers: req.headers } })
 
+  const hasSupabaseCreds =
+    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!hasSupabaseCreds) {
+    return res
+  }
+
   const supabase = createMiddlewareClient({ req, res })
 
   const {
